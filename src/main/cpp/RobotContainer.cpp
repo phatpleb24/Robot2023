@@ -59,13 +59,13 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
   frc::TrajectoryConfig config(0.5_mps, 0.4_mps_sq);
   config.SetKinematics(frc::DifferentialDriveKinematics(DriveConstants::trackWidth));
   config.AddConstraint(autoVoltageConstraint);
-  frc::Pose2d currentPose{m_drive.getPose()};
-  auto trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-    currentPose,
-    {m_drive.alterTrans(currentPose, 1_m, 0_m)},
-    m_drive.alterPos(currentPose, 10_m, 0_m, 0_deg),
-    config
-  );
+  // frc::Pose2d currentPose{m_drive.getPose()};
+  // auto trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
+  //   currentPose,
+  //   {m_drive.alterTrans(currentPose, 1_m, 0_m)},
+  //   m_drive.alterPos(currentPose, 10_m, 0_m, 0_deg),
+  //   config
+  // );
 
   frc::Trajectory pathWeaverTraj;
   fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
