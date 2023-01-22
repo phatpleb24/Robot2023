@@ -56,7 +56,7 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
     frc::DifferentialDriveKinematics(DriveConstants::trackWidth), 2_V
   };
   
-  frc::TrajectoryConfig config(0.5_mps, 0.4_mps_sq);
+  frc::TrajectoryConfig config(1_mps, 1_mps_sq);
   config.SetKinematics(frc::DifferentialDriveKinematics(DriveConstants::trackWidth));
   config.AddConstraint(autoVoltageConstraint);
   // frc::Pose2d currentPose{m_drive.getPose()};
@@ -69,7 +69,7 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
   frc::Trajectory pathWeaverTraj;
   fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
-  deployDirectory = deployDirectory / "output" / "path2.wpilib.json";
+  deployDirectory = deployDirectory / "output" / "path3.wpilib.json";
   pathWeaverTraj = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory.string());
 
   //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);
