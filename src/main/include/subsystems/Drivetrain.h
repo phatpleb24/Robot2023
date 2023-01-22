@@ -10,6 +10,7 @@
 #include <frc/motorcontrol/MotorControllerGroup.h>
 #include "ctre/Phoenix.h"
 #include <units/length.h>
+#include <numbers>
 #include <frc/smartdashboard/Field2d.h>
 #include <frc/simulation/DifferentialDrivetrainSim.h>
 #include <Constants.h>
@@ -42,7 +43,8 @@ class Drivetrain : public frc2::SubsystemBase {
   void resetOdometry(frc::Pose2d pos);
 
   frc::Pose2d getPose();
-
+  frc::Pose2d alterPos(frc::Pose2d currentPose, units::meter_t x, units::meter_t y, units::degree_t deg);
+  frc::Translation2d alterTrans(frc::Pose2d currentPose, units::meter_t x, units::meter_t y);
   frc::DifferentialDriveWheelSpeeds getWheelSpeed();
 
   void tankDriveVolts(units::volt_t left, units::volt_t right);

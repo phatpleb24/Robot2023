@@ -26,9 +26,21 @@ void Drivetrain::Periodic() {
 }
 
 void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {
-  diffDrive.ArcadeDrive(xaxisSpeed/2.0, (r1-l1)/2.0);
+  diffDrive.ArcadeDrive(xaxisSpeed/2.0, (l1-r1)/2.0);
 }
 
+//   }
+//   diffDrive.ArcadeDrive(xaxisSpeed, zaxisRotate);
+// }
+frc::Translation2d Drivetrain::alterTrans(frc::Pose2d currentPose, units::meter_t x, units::meter_t y){
+  return frc::Translation2d{currentPose.X() + x, currentPose.Y() + y};
+}
+frc::Pose2d Drivetrain::alterPos(frc::Pose2d currentPose, units::meter_t x, units::meter_t y, units::degree_t deg){
+  return frc::Pose2d{currentPose.X() + x, currentPose.Y() + y, frc::Rotation2d(currentPose.Rotation().Degrees() + deg)};
+}
+// void Drivetrain::ResetPose(){
+//   m_field.SetRobotPose(0_m, 0_m, frc::Rotation2d());
+// }
 void Drivetrain::SimulationPeriodic() {
   // Implementation of subsystem simulation periodic method goes here.
   m_leftMasterSim.SetBusVoltage(frc::RobotController::GetInputVoltage());

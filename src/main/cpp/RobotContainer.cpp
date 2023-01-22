@@ -8,6 +8,8 @@
 #include <Constants.h>
 #include <units/velocity.h>
 #include <units/acceleration.h>
+#include <units/length.h>
+#include <units/angle.h>
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/controller/RamseteController.h>
@@ -29,14 +31,18 @@ RobotContainer::RobotContainer(){
   ConfigureButtonBindings();
   m_drive.SetDefaultCommand(frc2::RunCommand(
       [this] {
-        m_drive.ArcadeDrive(-m_joystick.GetRawAxis(1), m_joystick.GetRawAxis(2), m_joystick.GetRawAxis(3));
+        // m_drive.ArcadeDrive(-m_ps4.GetLeftY()/2.0,
+        //                     m_ps4.GetLeftX()/2.0);
+        m_drive.ArcadeDrive(-m_ps4.GetLeftY(),
+                            m_ps4.GetRawAxis(2), m_ps4.GetRawAxis(3));
       },
       {&m_drive}));
 }
 
 void RobotContainer::ConfigureButtonBindings() {
   // Configure your button bindings here
-  frc2::JoystickButton(&m_joystick, frc::XboxController::Button::kA).OnTrue(&m_driveHalfSpeed).OnFalse(&m_driveFullSpeed);
+
+  frc2::JoystickButton(&m_ps4, 1).OnTrue(&m_driveHalfSpeed).OnFalse(&m_driveFullSpeed);
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
@@ -53,11 +59,11 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
   frc::TrajectoryConfig config(0.5_mps, 0.4_mps_sq);
   config.SetKinematics(frc::DifferentialDriveKinematics(DriveConstants::trackWidth));
   config.AddConstraint(autoVoltageConstraint);
-
+  frc::Pose2d currentPose{m_drive.getPose()};
   auto trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-    frc::Pose2d{0_m,0_m,0_deg},
-    {frc::Translation2d{2_m,0_m}/*, frc::Translation2d{1_m,1_m}*/},
-    frc::Pose2d{3_m, 5_m, 90_deg},
+    currentPose,
+    {m_drive.alterTrans(currentPose, 1_m, 0_m)},
+    m_drive.alterPos(currentPose, 10_m, 0_m, 0_deg),
     config
   );
 
