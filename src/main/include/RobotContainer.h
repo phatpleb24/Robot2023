@@ -8,6 +8,9 @@
 #include <frc/smartdashboard/SendableChooser.h>
 #include "frc/Joystick.h"
 #include <frc2/command/InstantCommand.h>
+#include <photonlib/PhotonCamera.h>
+#include <frc/controller/PIDController.h>
+#include <frc/GenericHID.h>
 
 #include "subsystems/Drivetrain.h"
 
@@ -34,7 +37,8 @@ class RobotContainer {
   // The robot's subsystems and commands are defined here...
   //frc::SendableChooser<frc2::Command*> m_chooser;
   Drivetrain m_drive;
-  frc::Joystick m_joystick{0};
+  frc::GenericHID m_joystick{0};
+  frc2::PIDController controller{.5,0,0};
 
   void ConfigureButtonBindings();
 };

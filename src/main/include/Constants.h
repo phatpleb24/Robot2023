@@ -20,12 +20,12 @@
 
 namespace DriveConstants
 {
-    constexpr units::volt_t kS = 0.62045_V;
-    constexpr auto kV = 2.5115 * 1_V / 1_mps;
-    constexpr auto kA = 0.31661 * 1_V / 1_mps_sq;
-    constexpr units::meter_t trackWidth = 0.69_m;
-    constexpr auto kVAngular = 2.7453 * 1_V/1_mps;
-    constexpr auto kAAngular = 0.054563 * 1_V / 1_mps_sq;
+    constexpr units::volt_t kS = 0.20787_V;
+    constexpr auto kV = 1.8099 * 1_V / 1_mps;
+    constexpr auto kA = 0.1755 * 1_V / 1_mps_sq;
+    constexpr units::meter_t trackWidth = 17.75_in;
+    constexpr auto kVAngular = 2.0269 * 1_V/1_mps;
+    constexpr auto kAAngular = 0.13265 * 1_V / 1_mps_sq;
 
 }
     

@@ -5,7 +5,7 @@
 #include "RobotContainer.h"
 #include "commands/TeleopArcadeDrive.h"
 #include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
-#include <Constants.h>
+#include "Constants.h"
 #include <units/velocity.h>
 #include <units/acceleration.h>
 #include <frc/trajectory/TrajectoryConfig.h>
@@ -21,6 +21,7 @@
 #include <frc2/command/RunCommand.h>
 #include <frc/XboxController.h>
 #include <frc2/command/button/JoystickButton.h>
+#include <photonlib/PhotonPipelineResult.h>
 
 RobotContainer::RobotContainer(){
   // Initialize all of your commands and subsystems here
@@ -29,7 +30,19 @@ RobotContainer::RobotContainer(){
   ConfigureButtonBindings();
   m_drive.SetDefaultCommand(frc2::RunCommand(
       [this] {
-        m_drive.ArcadeDrive(-m_joystick.GetRawAxis(1), m_joystick.GetRawAxis(2), m_joystick.GetRawAxis(3));
+        double x = m_joystick.GetRawAxis(1);
+        double z;
+        if(m_joystick.GetRawButton(1))
+        {
+          photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
+          if(result.HasTargets())
+          {
+            z = -controller.Calculate((result.GetBestTarget().GetYaw()), 0);
+          }
+          else z = 0;
+        }
+        else z = m_joystick.GetRawAxis(3) - m_joystick.GetRawAxis(2);
+        m_drive.ArcadeDrive(x, z);
       },
       {&m_drive}));
 }
@@ -56,8 +69,8 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
   auto trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
     frc::Pose2d{0_m,0_m,0_deg},
-    {frc::Translation2d{2_m,0_m}/*, frc::Translation2d{1_m,1_m}*/},
-    frc::Pose2d{3_m, 5_m, 90_deg},
+    {/*frc::Translation2d{2_m,0_m}/*, frc::Translation2d{1_m,1_m}*/},
+    frc::Pose2d{2_m, 2_m, 0_deg},
     config
   );
 
@@ -68,10 +81,10 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
   //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);
   
-  m_drive.resetOdometry(pathWeaverTraj.InitialPose());
+  m_drive.resetOdometry(trajectory.InitialPose());
   frc2::RamseteCommand ramseteCommand
   {
-    pathWeaverTraj,
+    trajectory,
     [this]() {return m_drive.getPose();},
     frc::RamseteController{},
     frc::SimpleMotorFeedforward<units::meters>{DriveConstants::kS, DriveConstants::kV, DriveConstants::kA},

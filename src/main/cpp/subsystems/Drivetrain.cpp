@@ -29,6 +29,11 @@ void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {
   diffDrive.ArcadeDrive(xaxisSpeed/2.0, (r1-l1)/2.0);
 }
 
+void Drivetrain::ArcadeDrive(double x, double z)
+{
+  diffDrive.ArcadeDrive(-x/2.0, -z/2.0);
+}
+
 void Drivetrain::SimulationPeriodic() {
   // Implementation of subsystem simulation periodic method goes here.
   m_leftMasterSim.SetBusVoltage(frc::RobotController::GetInputVoltage());
