@@ -11,6 +11,8 @@
 #include <photonlib/PhotonCamera.h>
 #include <frc/controller/PIDController.h>
 #include <frc/GenericHID.h>
+#include <units/length.h>
+#include <units/angle.h>
 
 #include "subsystems/Drivetrain.h"
 
@@ -38,7 +40,10 @@ class RobotContainer {
   //frc::SendableChooser<frc2::Command*> m_chooser;
   Drivetrain m_drive;
   frc::GenericHID m_joystick{0};
-  frc2::PIDController controller{.5,0,0};
+  frc2::PIDController controller{1,0,0};
+  units::meter_t cameraHeight = 0.08_m;
+  units::meter_t targetHeight = 31.5_in;
+  units::degree_t cameraPitch = 0_deg;
 
   void ConfigureButtonBindings();
 };

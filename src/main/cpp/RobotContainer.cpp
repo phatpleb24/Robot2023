@@ -2,12 +2,14 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+
 #include "RobotContainer.h"
 #include "commands/TeleopArcadeDrive.h"
 #include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
 #include "Constants.h"
 #include <units/velocity.h>
 #include <units/acceleration.h>
+#include <units/angle.h>
 #include <frc/trajectory/TrajectoryConfig.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/controller/RamseteController.h>
@@ -22,6 +24,11 @@
 #include <frc/XboxController.h>
 #include <frc2/command/button/JoystickButton.h>
 #include <photonlib/PhotonPipelineResult.h>
+#include <photonlib/PhotonTrackedTarget.h>
+#include <photonlib/PhotonUtils.h>
+#include <cmath>
+#include <numbers>
+#include <frc/smartdashboard/SmartDashboard.h>
 
 RobotContainer::RobotContainer(){
   // Initialize all of your commands and subsystems here
@@ -30,18 +37,25 @@ RobotContainer::RobotContainer(){
   ConfigureButtonBindings();
   m_drive.SetDefaultCommand(frc2::RunCommand(
       [this] {
-        double x = m_joystick.GetRawAxis(1);
-        double z;
+        double x = -m_joystick.GetRawAxis(1);
+        double z = 0.0;
         if(m_joystick.GetRawButton(1))
         {
           photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
           if(result.HasTargets())
           {
-            z = -controller.Calculate((result.GetBestTarget().GetYaw()), 0);
+            if (result.GetBestTarget().GetYaw() < -3.0)
+            {
+              z = 0.37;
+            }
+            if (result.GetBestTarget().GetYaw() > 3.0)
+            {
+              z = -0.37;
+            }
+            //z = controller.Calculate((result.GetBestTarget().GetYaw()), 0);
           }
-          else z = 0;
         }
-        else z = m_joystick.GetRawAxis(3) - m_joystick.GetRawAxis(2);
+        else z = (m_joystick.GetRawAxis(2) - m_joystick.GetRawAxis(3))/2.0;
         m_drive.ArcadeDrive(x, z);
       },
       {&m_drive}));
@@ -66,14 +80,34 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
   frc::TrajectoryConfig config(0.5_mps, 0.4_mps_sq);
   config.SetKinematics(frc::DifferentialDriveKinematics(DriveConstants::trackWidth));
   config.AddConstraint(autoVoltageConstraint);
+  frc::Pose2d initialPose = frc::Pose2d{0_m, 0_m, 0_deg};
+  frc::Pose2d finalPose;
+
+  photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
+  if(result.HasTargets())
+  {
+    photonlib::PhotonTrackedTarget target = result.GetBestTarget();
+    units::meter_t range = photonlib::PhotonUtils::CalculateDistanceToTarget(
+      cameraHeight, targetHeight, cameraPitch, units::angle::degree_t{target.GetPitch()}
+    );
+   // units::meter_t x = range * std::cos(target.GetYaw() *  std::numbers::pi / 180.0);
+    //units::meter_t y = range * std::sin(target.GetYaw() * std::numbers::pi / 180.0);
+    frc::Translation2d translation(range, frc::Rotation2d{units::degree_t{-target.GetYaw()}});
+    frc::Transform2d transform(translation, frc::Rotation2d{0_deg});
+    finalPose = initialPose.TransformBy(transform);
+    
+    //finalPose = frc::Pose2d{-x, -y, 0_deg};
+    //wpi::outs() << std::to_string(range.value());
+    //frc::SmartDashboard::PutNumber("Distance", range.value());
+  }
+  else finalPose = frc::Pose2d{2_m,2_m,0_deg};
 
   auto trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-    frc::Pose2d{0_m,0_m,0_deg},
-    {/*frc::Translation2d{2_m,0_m}/*, frc::Translation2d{1_m,1_m}*/},
-    frc::Pose2d{2_m, 2_m, 0_deg},
+    initialPose,
+    {/*frc::Translation2d{2_m,0_m}, frc::Translation2d{1_m,1_m}*/},
+    finalPose,
     config
   );
-
   frc::Trajectory pathWeaverTraj;
   fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
   deployDirectory = deployDirectory / "output" / "path2.wpilib.json";
@@ -90,8 +124,8 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
     frc::SimpleMotorFeedforward<units::meters>{DriveConstants::kS, DriveConstants::kV, DriveConstants::kA},
     frc::DifferentialDriveKinematics(DriveConstants::trackWidth),
     [this]() {return m_drive.getWheelSpeed();},
-    frc2::PIDController{1.5, 0, 0},
-    frc2::PIDController{1.5, 0, 0},
+    frc2::PIDController{.5, 0, 0},
+    frc2::PIDController{.5, 0, 0},
     [this](auto left, auto right){m_drive.tankDriveVolts(left, right);},
     {&m_drive},
   };

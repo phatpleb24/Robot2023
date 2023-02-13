@@ -7,6 +7,7 @@
 #include <frc/RobotController.h>
 #include <numbers>
 #include <units/voltage.h>
+#include <photonlib/PhotonUtils.h>
 
 Drivetrain::Drivetrain() {
   // Implementation of subsystem constructor goes here.
@@ -17,6 +18,7 @@ void Drivetrain::Periodic() {
   // Implementation of subsystem periodic method goes here.
   UpdateOdometry();
   m_field.SetRobotPose(m_odometry.GetPose());
+  frc::SmartDashboard::PutNumber("Distance", photonlib::PhotonUtils::CalculateDistanceToTarget(0.08_m, 31.5_in, 0_rad, units::angle::degree_t{camera.GetLatestResult().GetBestTarget().GetPitch()}).value());
   /*frc::SmartDashboard::PutNumber("Left Velocity", m_leftFrontMotor.GetSelectedSensorVelocity());
   frc::SmartDashboard::PutNumber("Right Velocity", m_rightFrontMotor.GetSelectedSensorVelocity());
   frc::SmartDashboard::PutNumber("Left Front Voltage", m_leftFrontMotor.GetMotorOutputVoltage());
@@ -31,7 +33,7 @@ void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {
 
 void Drivetrain::ArcadeDrive(double x, double z)
 {
-  diffDrive.ArcadeDrive(-x/2.0, -z/2.0);
+  diffDrive.ArcadeDrive(x/2.0, z);
 }
 
 void Drivetrain::SimulationPeriodic() {
@@ -70,9 +72,9 @@ void Drivetrain::Init()
   m_rightFollowerMotor.Follow(m_rightFrontMotor);
   m_leftFollowerMotor.Follow(m_leftFrontMotor);
 
-  m_rightFrontMotor.SetInverted(TalonFXInvertType::CounterClockwise);
+  m_rightFrontMotor.SetInverted(TalonFXInvertType::Clockwise);
   m_rightFollowerMotor.SetInverted(TalonFXInvertType::FollowMaster);
-  m_leftFrontMotor.SetInverted(TalonFXInvertType::Clockwise);
+  m_leftFrontMotor.SetInverted(TalonFXInvertType::CounterClockwise);
   m_leftFollowerMotor.SetInverted(TalonFXInvertType::FollowMaster);
 
   m_rightFrontMotor.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor);
