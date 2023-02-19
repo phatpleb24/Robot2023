@@ -19,16 +19,17 @@
 #include <frc/Filesystem.h>
 #include <frc/geometry/Pose2d.h>
 #include <frc/trajectory/TrajectoryUtil.h>
-#include <wpi/fs.h>
 #include <frc2/command/RunCommand.h>
 #include <frc/XboxController.h>
 #include <frc2/command/button/JoystickButton.h>
-#include <photonlib/PhotonPipelineResult.h>
-#include <photonlib/PhotonTrackedTarget.h>
+#include <wpi/fs.h>
 #include <photonlib/PhotonUtils.h>
-#include <cmath>
 #include <numbers>
-#include <frc/smartdashboard/SmartDashboard.h>
+#include "frc/smartdashboard/Smartdashboard.h"
+#include "networktables/NetworkTable.h"
+#include "networktables/NetworkTableInstance.h"
+#include "networktables/NetworkTableEntry.h"
+#include "networktables/NetworkTableValue.h"
 
 RobotContainer::RobotContainer(){
   // Initialize all of your commands and subsystems here
@@ -41,14 +42,14 @@ RobotContainer::RobotContainer(){
         double z = 0.0;
         if(m_joystick.GetRawButton(1))
         {
-          photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
-          if(result.HasTargets())
+          //photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
+          if(m_drive.table->GetNumber("tv", 0.0))
           {
-            if (result.GetBestTarget().GetYaw() < -3.0)
+            if (m_drive.table->GetNumber("tx", 0.0) < -3.0)
             {
               z = 0.37;
             }
-            if (result.GetBestTarget().GetYaw() > 3.0)
+            if (m_drive.table->GetNumber("tx", 0.0) > 3.0)
             {
               z = -0.37;
             }
@@ -72,27 +73,27 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
   {
     frc::SimpleMotorFeedforward<units::meters>
     {
-      DriveConstants::kS, DriveConstants::kV, DriveConstants::kA
+      testRobot::kS, testRobot::kV, testRobot::kA
     },
-    frc::DifferentialDriveKinematics(DriveConstants::trackWidth), 2_V
+    frc::DifferentialDriveKinematics(testRobot::kTrackWidth), 2_V
   };
   
   frc::TrajectoryConfig config(0.5_mps, 0.4_mps_sq);
-  config.SetKinematics(frc::DifferentialDriveKinematics(DriveConstants::trackWidth));
+  config.SetKinematics(frc::DifferentialDriveKinematics(testRobot::kTrackWidth));
   config.AddConstraint(autoVoltageConstraint);
   frc::Pose2d initialPose = frc::Pose2d{0_m, 0_m, 0_deg};
   frc::Pose2d finalPose;
 
-  photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
-  if(result.HasTargets())
+  //photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
+  if(m_drive.table->GetNumber("tv", 0.0))
   {
-    photonlib::PhotonTrackedTarget target = result.GetBestTarget();
+    //photonlib::PhotonTrackedTarget target = result.GetBestTarget();
     units::meter_t range = photonlib::PhotonUtils::CalculateDistanceToTarget(
-      cameraHeight, targetHeight, cameraPitch, units::angle::degree_t{target.GetPitch()}
+      vision::cameraHeight, vision::targetHeight, vision::cameraPitch, units::degree_t{m_drive.table->GetNumber("ty", 0.0)}
     );
    // units::meter_t x = range * std::cos(target.GetYaw() *  std::numbers::pi / 180.0);
     //units::meter_t y = range * std::sin(target.GetYaw() * std::numbers::pi / 180.0);
-    frc::Translation2d translation(range, frc::Rotation2d{units::degree_t{-target.GetYaw()}});
+    frc::Translation2d translation(range, frc::Rotation2d{units::degree_t{-m_drive.table->GetNumber("tx", 0.0)}});
     frc::Transform2d transform(translation, frc::Rotation2d{0_deg});
     finalPose = initialPose.TransformBy(transform);
     
@@ -121,8 +122,8 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
     trajectory,
     [this]() {return m_drive.getPose();},
     frc::RamseteController{},
-    frc::SimpleMotorFeedforward<units::meters>{DriveConstants::kS, DriveConstants::kV, DriveConstants::kA},
-    frc::DifferentialDriveKinematics(DriveConstants::trackWidth),
+    frc::SimpleMotorFeedforward<units::meters>{testRobot::kS, testRobot::kV, testRobot::kA},
+    frc::DifferentialDriveKinematics(testRobot::kTrackWidth),
     [this]() {return m_drive.getWheelSpeed();},
     frc2::PIDController{.5, 0, 0},
     frc2::PIDController{.5, 0, 0},
