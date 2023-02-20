@@ -9,6 +9,7 @@
 #include <frc/shuffleboard/ShuffleboardTab.h>
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/DataLogManager.h>
+#include <units/length.h>
 
 void Robot::RobotInit()
 {
@@ -49,7 +50,38 @@ void Robot::AutonomousInit() {
   }
 }
 
-void Robot::AutonomousPeriodic() {}
+bool Robot::checkPose(frc::Pose2d pose)
+{
+  return pose.X() >= 0.9_m && pose.X() <= 1.1_m && pose.Y() >= 0.9_m && pose.Y() <= 1.1_m;
+}
+
+void Robot::AutonomousPeriodic()
+{
+  if(/*m_container.m_drive.table->GetNumber("tv",0.0)*/ checkPose(m_container.m_drive.getPose()))
+  {
+   // delete m_autonomousCommand;
+    if(commandCreator == nullptr)
+    {
+      m_autonomousCommand->Cancel();
+      delete m_autonomousCommand;
+      m_container.m_drive.tankDriveVolts(0_V,0_V);
+      m_autonomousCommand = nullptr;
+      commandCreator = std::make_unique<std::thread>([this] () {m_pendingCommand = m_container.AprilTagTrajectory();});      
+    }
+    else
+    {
+      if(commandCreator->joinable())
+      {
+        commandCreator->join();
+        //commandCreator = nullptr;
+        m_autonomousCommand = m_pendingCommand;
+        m_autonomousCommand->Schedule();
+        m_pendingCommand = nullptr;
+      }
+    
+    }
+  }
+}
 
 void Robot::TeleopInit() {
   // This makes sure that the autonomous stops running when
@@ -58,6 +90,7 @@ void Robot::TeleopInit() {
   // this line or comment it out.
   if (m_autonomousCommand != nullptr) {
     m_autonomousCommand->Cancel();
+    delete m_autonomousCommand;
     m_autonomousCommand = nullptr;
   }
 }

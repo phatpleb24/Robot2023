@@ -32,10 +32,13 @@ class RobotContainer {
  public:
   RobotContainer();
   Drivetrain& GetDrive() {return m_drive;};
+  Drivetrain m_drive;
 
   frc2::Command* GetAutonomousCommand();
 
   frc2::Command* TankDriveCommand();
+
+  frc2::Command* AprilTagTrajectory();
 
   frc2::InstantCommand m_driveHalfSpeed{[this] {m_drive.SetMaxOutput(0.5);}, {}};
   frc2::InstantCommand m_driveFullSpeed{[this] {m_drive.SetMaxOutput(1);}, {}};
@@ -43,7 +46,6 @@ class RobotContainer {
  private:
   // The robot's subsystems and commands are defined here...
   //frc::SendableChooser<frc2::Command*> m_chooser;
-  Drivetrain m_drive;
   frc::GenericHID m_joystick{0};
   frc2::PIDController controller{1,0,0};
 
