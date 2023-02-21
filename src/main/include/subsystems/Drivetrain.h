@@ -18,6 +18,7 @@
 #include <photonlib/PhotonCamera.h>
 #include <frc/estimator/DifferentialDrivePoseEstimator.h>
 #include <frc/StateSpaceUtil.h>
+#include <frc/filter/SlewRateLimiter.h>
 
 class Drivetrain : public frc2::SubsystemBase {
  public:
@@ -80,6 +81,7 @@ class Drivetrain : public frc2::SubsystemBase {
   //frc::DifferentialDriveOdometry m_odometry{m_imu.GetRotation2d(),0_m,0_m};
   frc::DifferentialDriveKinematics m_kinematics{DriveConstants::kTrackWidth};
 
+  frc::SlewRateLimiter<units::scalar> m_rateLimiter{0.5_V/1_s};
 
   TalonFXSimCollection m_leftMasterSim {m_leftFrontMotor.GetSimCollection()};
   TalonFXSimCollection m_rightMasterSim {m_rightFrontMotor.GetSimCollection()};

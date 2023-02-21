@@ -8,6 +8,7 @@
 #include <numbers>
 #include <units/voltage.h>
 #include <photonlib/PhotonUtils.h>
+
 Drivetrain::Drivetrain() {
   // Implementation of subsystem constructor goes here.
   Init();
@@ -32,7 +33,7 @@ void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {
 
 void Drivetrain::ArcadeDrive(double x, double z)
 {
-  diffDrive.ArcadeDrive(x/2.0, z);
+  diffDrive.ArcadeDrive(m_rateLimiter.Calculate(x), z/2.0);
 }
 
 void Drivetrain::SimulationPeriodic() {
