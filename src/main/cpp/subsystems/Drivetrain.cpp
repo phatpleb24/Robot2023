@@ -33,7 +33,7 @@ void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {
 
 void Drivetrain::ArcadeDrive(double x, double z)
 {
-  diffDrive.ArcadeDrive(m_rateLimiter.Calculate(x), z/2.0);
+  diffDrive.ArcadeDrive(m_rateLimiter.Calculate(x), z);
 }
 
 void Drivetrain::SimulationPeriodic() {
@@ -72,10 +72,10 @@ void Drivetrain::Init()
   m_rightFollowerMotor.Follow(m_rightFrontMotor);
   m_leftFollowerMotor.Follow(m_leftFrontMotor);
 
-  m_rightFrontMotor.SetInverted(testRobot::kRightDirection);
-  m_rightFollowerMotor.SetInverted(testRobot::kRightDirection);
-  m_leftFrontMotor.SetInverted(testRobot::kLeftDirection);
-  m_leftFollowerMotor.SetInverted(testRobot::kLeftDirection);
+  m_rightFrontMotor.SetInverted(DriveConstants::kRightDirection);
+  m_rightFollowerMotor.SetInverted(DriveConstants::kRightDirection);
+  m_leftFrontMotor.SetInverted(DriveConstants::kLeftDirection);
+  m_leftFollowerMotor.SetInverted(DriveConstants::kLeftDirection);
 
   m_rightFrontMotor.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor);
   m_rightFrontMotor.SetSelectedSensorPosition(0);

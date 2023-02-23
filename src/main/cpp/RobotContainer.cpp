@@ -58,7 +58,7 @@ RobotContainer::RobotContainer(){
             //z = controller.Calculate((result.GetBestTarget().GetYaw()), 0);
           }
         }
-        else z = (m_joystick.GetRawAxis(2) - m_joystick.GetRawAxis(3))/2.0;
+        else z = (m_joystick.GetRawAxis(2) - m_joystick.GetRawAxis(3))*3.0 / 8.0;
         m_drive.ArcadeDrive(x, z);
       },
       {&m_drive}));

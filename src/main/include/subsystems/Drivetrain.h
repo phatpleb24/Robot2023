@@ -19,6 +19,7 @@
 #include <frc/estimator/DifferentialDrivePoseEstimator.h>
 #include <frc/StateSpaceUtil.h>
 #include <frc/filter/SlewRateLimiter.h>
+#include <units/dimensionless.h>
 
 class Drivetrain : public frc2::SubsystemBase {
  public:
@@ -62,17 +63,17 @@ class Drivetrain : public frc2::SubsystemBase {
   void UpdateOdometry();
   // Components (e.g. motor controllers and sensors) should generally be
   // declared private and exposed only through public methods.
-  /*WPI_TalonFX m_rightFrontMotor{6};//6
+  WPI_TalonFX m_rightFrontMotor{6};//6
   WPI_TalonFX m_rightFollowerMotor{5};//5
   WPI_TalonFX m_leftFrontMotor{8};//8
   WPI_TalonFX m_leftFollowerMotor{7};//7
-  WPI_Pigeon2 m_imu{0};*/
+  WPI_Pigeon2 m_imu{0};
 
-  WPI_TalonFX m_rightFrontMotor{1};//6
+  /*WPI_TalonFX m_rightFrontMotor{1};//6
   WPI_TalonFX m_rightFollowerMotor{2};//5
-  WPI_TalonFX m_leftFrontMotor{3};//8y
+  WPI_TalonFX m_leftFrontMotor{3};//8
   WPI_TalonFX m_leftFollowerMotor{4};//7
-  WPI_Pigeon2 m_imu{8};
+  WPI_Pigeon2 m_imu{8};*/
 
 //  static constexpr  c = kWhellRadiusInches * 2 * wpi::numbers::pi;
   //auto circumferenceToGear = c * kGearRatio / kUnitsPerRevolution;
@@ -81,7 +82,7 @@ class Drivetrain : public frc2::SubsystemBase {
   //frc::DifferentialDriveOdometry m_odometry{m_imu.GetRotation2d(),0_m,0_m};
   frc::DifferentialDriveKinematics m_kinematics{DriveConstants::kTrackWidth};
 
-  frc::SlewRateLimiter<units::scalar> m_rateLimiter{0.5_V/1_s};
+  frc::SlewRateLimiter<units::scalar> m_rateLimiter{0.3/1_s};
 
   TalonFXSimCollection m_leftMasterSim {m_leftFrontMotor.GetSimCollection()};
   TalonFXSimCollection m_rightMasterSim {m_rightFrontMotor.GetSimCollection()};
