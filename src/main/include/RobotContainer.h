@@ -5,6 +5,7 @@
 #pragma once
 
 #include <frc2/command/Command.h>
+#include <frc2/command/button/CommandXboxController.h>
 #include <frc/smartdashboard/SendableChooser.h>
 #include "frc/Joystick.h"
 #include <frc2/command/InstantCommand.h>
@@ -20,6 +21,7 @@
 #include "networktables/NetworkTableValue.h"
 
 #include "subsystems/Drivetrain.h"
+#include "subsystems/ArmSubsystem.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -33,6 +35,7 @@ class RobotContainer {
   RobotContainer();
   Drivetrain& GetDrive() {return m_drive;};
   Drivetrain m_drive;
+  ArmSubsystem m_arm;
 
   frc2::Command* GetAutonomousCommand();
 
@@ -46,7 +49,7 @@ class RobotContainer {
  private:
   // The robot's subsystems and commands are defined here...
   //frc::SendableChooser<frc2::Command*> m_chooser;
-  frc::GenericHID m_joystick{0};
+  frc2::CommandXboxController m_joystick{0};
   frc2::PIDController controller{1,0,0};
 
   void ConfigureButtonBindings();

@@ -20,7 +20,7 @@
 #include <frc/geometry/Pose2d.h>
 #include <frc/trajectory/TrajectoryUtil.h>
 #include <frc2/command/RunCommand.h>
-#include <frc/XboxController.h>
+#include <frc2/command/Commands.h>
 #include <frc2/command/button/JoystickButton.h>
 #include <wpi/fs.h>
 #include <photonlib/PhotonUtils.h>
@@ -62,6 +62,37 @@ RobotContainer::RobotContainer(){
         m_drive.ArcadeDrive(x, z);
       },
       {&m_drive}));
+  m_joystick.Y().OnTrue(frc2::cmd::Run(
+    [this]
+    {
+      m_arm.moveArm(2_V);
+    },
+    {&m_arm}
+  )).OnFalse(frc2::cmd::Run(
+    [this]
+    {
+      m_arm.moveArm(0_V);
+    },
+    {&m_arm}
+  ));
+
+  m_joystick.RightBumper().OnTrue
+  (
+    frc2::cmd::Run([this] {m_arm.moveIntake(2_V);}, {&m_arm})
+  )
+  .OnFalse
+  (
+    frc2::cmd::Run([this] {m_arm.moveIntake(0_V);}, {&m_arm})
+  );
+
+  m_joystick.LeftBumper().OnTrue
+  (
+    frc2::cmd::Run([this] {m_arm.moveIntake(-2_V);}, {&m_arm})
+  )
+  .OnFalse
+  (
+    frc2::cmd::Run([this] {m_arm.moveIntake(0_V);}, {&m_arm})
+  );
 }
 
 void RobotContainer::ConfigureButtonBindings() {
