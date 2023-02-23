@@ -65,7 +65,7 @@ RobotContainer::RobotContainer(){
   m_joystick.Y().OnTrue(frc2::cmd::Run(
     [this]
     {
-      m_arm.moveArm(2_V);
+      m_arm.moveArm(1_V);
     },
     {&m_arm}
   )).OnFalse(frc2::cmd::Run(
@@ -75,6 +75,12 @@ RobotContainer::RobotContainer(){
     },
     {&m_arm}
   ));
+
+  m_joystick.A().OnTrue(
+    frc2::cmd::Run([this] {m_arm.moveArm(-1_V);}, {&m_arm})
+  ).OnFalse(
+    frc2::cmd::Run([this] {m_arm.moveArm(0_V);}, {&m_arm})
+  );
 
   m_joystick.RightBumper().OnTrue
   (
