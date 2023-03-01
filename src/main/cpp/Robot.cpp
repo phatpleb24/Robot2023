@@ -50,14 +50,14 @@ void Robot::AutonomousInit() {
   }
 }
 
-bool Robot::checkPose(frc::Pose2d pose)
+bool checkPose(frc::Pose2d pose)
 {
   return pose.X() >= 0.9_m && pose.X() <= 1.1_m && pose.Y() >= 0.9_m && pose.Y() <= 1.1_m;
 }
 
 void Robot::AutonomousPeriodic()
 {
-  if(/*m_container.m_drive.table->GetNumber("tv",0.0)*/ checkPose(m_container.m_drive.getPose()))
+  if(m_container.m_drive.table->GetNumber("tv",0.0) && aprilTagFlag)
   {
    // delete m_autonomousCommand;
     if(commandCreator == nullptr)

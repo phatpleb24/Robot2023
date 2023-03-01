@@ -7,7 +7,6 @@
 #include <frc2/command/Command.h>
 #include <frc2/command/button/CommandXboxController.h>
 #include <frc/smartdashboard/SendableChooser.h>
-#include "frc/Joystick.h"
 #include <frc2/command/InstantCommand.h>
 #include <photonlib/PhotonCamera.h>
 #include <frc/controller/PIDController.h>
@@ -42,6 +41,7 @@ class RobotContainer {
   frc2::Command* TankDriveCommand();
 
   frc2::Command* AprilTagTrajectory();
+
 
   frc2::InstantCommand m_driveHalfSpeed{[this] {m_drive.SetMaxOutput(0.5);}, {}};
   frc2::InstantCommand m_driveFullSpeed{[this] {m_drive.SetMaxOutput(1);}, {}};

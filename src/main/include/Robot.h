@@ -23,7 +23,6 @@ class Robot : public frc::TimedRobot {
   void TestPeriodic() override;
   void SimulationInit() override;
   void SimulationPeriodic() override;
-  bool checkPose(frc::Pose2d pose);
 
  private:
   // Have it null by default so that if testing teleop it

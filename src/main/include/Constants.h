@@ -22,12 +22,12 @@
 
 namespace DriveConstants
 {
-    constexpr units::volt_t kS = 0.17242_V;
-    constexpr auto kV = 1.8421 * 1_V / 1_mps;
-    constexpr auto kA = 0.36004 * 1_V / 1_mps_sq;
+    constexpr units::volt_t kS = 0.14848_V;
+    constexpr auto kV = 1.8528 * 1_V / 1_mps;
+    constexpr auto kA = 0.45158 * 1_V / 1_mps_sq;
     constexpr units::meter_t kTrackWidth = 0.48251_m;
-    constexpr auto kVAngular = 2.1647 * 1_V/1_mps;
-    constexpr auto kAAngular = 0.30817 * 1_V / 1_mps_sq;
+    constexpr auto kVAngular = 2.1592 * 1_V/1_mps;
+    constexpr auto kAAngular = 0.53732 * 1_V / 1_mps_sq;
     constexpr auto kRightDirection = TalonFXInvertType::Clockwise;
     constexpr auto kLeftDirection = TalonFXInvertType::CounterClockwise;
 
@@ -47,7 +47,9 @@ namespace testRobot
     
 namespace vision
 {
-    constexpr units::meter_t cameraHeight = 1.875_in;
-    constexpr units::meter_t targetHeight = 29_in;
-    constexpr units::degree_t cameraPitch = 2.5_deg;
+    constexpr units::meter_t cameraHeight = 53_in;
+    constexpr units::meter_t targetHeight = 28.5_in;
+    constexpr units::degree_t cameraPitch = -3_deg;
+    constexpr units::meter_t retroHeight = 44_in;
+    constexpr units::meter_t aprilTagArray[9] = {0_in, 18.22_in, 18.22_in, 18.22_in, 27.38_in, 27.38_in, 18.22_in, 18.22_in, 18.22_in}; 
 }

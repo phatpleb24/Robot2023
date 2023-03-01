@@ -40,9 +40,20 @@ RobotContainer::RobotContainer(){
   ConfigureButtonBindings();
   m_drive.SetDefaultCommand(frc2::RunCommand(
       [this] {
+        if(m_joystick.GetLeftStickButtonPressed())
+        {
+          if(m_drive.table->GetNumber("camMode", 0))
+          {
+            m_drive.table->PutNumber("camMode", 1);
+          }
+          else
+          {
+            m_drive.table->PutNumber("camMode", 0);
+          }
+        }
         double x = -m_joystick.GetRawAxis(1);
         double z = 0.0;
-        if(m_joystick.GetRawButton(1))
+        if(m_joystick.GetAButton())
         {
           //photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
           if(m_drive.table->GetNumber("tv", 0.0))
@@ -58,11 +69,35 @@ RobotContainer::RobotContainer(){
             //z = controller.Calculate((result.GetBestTarget().GetYaw()), 0);
           }
         }
-        else z = (m_joystick.GetRawAxis(2) - m_joystick.GetRawAxis(3))*3.0 / 8.0;
+        else 
+        {
+          z = (m_joystick.GetRawAxis(2) - m_joystick.GetRawAxis(3)) / 2.0;
+        }
         m_drive.ArcadeDrive(x, z);
       },
       {&m_drive}));
-  m_joystick.Y().OnTrue(frc2::cmd::Run(
+
+  m_arm.SetDefaultCommand(frc2::RunCommand
+  {
+    [this]
+    {
+      double x = -m_joystick.GetRawAxis(5);
+      m_arm.moveArm(1.2_V * x);
+
+      if(m_joystick.GetBackButton())
+      {
+        m_arm.moveIntake(-4_V);
+      }
+      else if(m_joystick.GetStartButton())
+      {
+        m_arm.moveIntake(4_V);
+      }
+      else m_arm.moveIntake(0_V);
+    },
+    {&m_arm}
+  });
+
+  /*m_joystick.Y().OnTrue(frc2::cmd::Run(
     [this]
     {
       m_arm.moveArm(1_V);
@@ -80,9 +115,9 @@ RobotContainer::RobotContainer(){
     frc2::cmd::Run([this] {m_arm.moveArm(-1_V);}, {&m_arm})
   ).OnFalse(
     frc2::cmd::Run([this] {m_arm.moveArm(0_V);}, {&m_arm})
-  );
+  );*/
 
-  m_joystick.RightBumper().OnTrue
+  /*m_joystick.RightBumper().OnTrue
   (
     frc2::cmd::Run([this] {m_arm.moveIntake(2_V);}, {&m_arm})
   )
@@ -98,7 +133,9 @@ RobotContainer::RobotContainer(){
   .OnFalse
   (
     frc2::cmd::Run([this] {m_arm.moveIntake(0_V);}, {&m_arm})
-  );
+  );*/
+
+  m_joystick.B().OnTrue(AprilTagTrajectory());
 }
 
 void RobotContainer::ConfigureButtonBindings() {
@@ -162,7 +199,9 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
   return new frc2::SequentialCommandGroup(
       std::move(ramseteCommand),
-      frc2::InstantCommand([this] { m_drive.tankDriveVolts(0_V, 0_V); }, {}));
+      frc2::InstantCommand([this] { m_drive.tankDriveVolts(0_V, 0_V); }, {}),
+      frc2::InstantCommand([this] {m_arm.moveIntake(3_V);})
+      );
       //lmoo
 }
 

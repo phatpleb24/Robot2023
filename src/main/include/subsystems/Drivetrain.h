@@ -82,7 +82,7 @@ class Drivetrain : public frc2::SubsystemBase {
   //frc::DifferentialDriveOdometry m_odometry{m_imu.GetRotation2d(),0_m,0_m};
   frc::DifferentialDriveKinematics m_kinematics{DriveConstants::kTrackWidth};
 
-  frc::SlewRateLimiter<units::scalar> m_rateLimiter{0.3/1_s};
+  frc::SlewRateLimiter<units::scalar> m_rateLimiter{0.5/1_s};
 
   TalonFXSimCollection m_leftMasterSim {m_leftFrontMotor.GetSimCollection()};
   TalonFXSimCollection m_rightMasterSim {m_rightFrontMotor.GetSimCollection()};
