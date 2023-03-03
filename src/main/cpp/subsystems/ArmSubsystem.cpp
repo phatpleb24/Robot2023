@@ -36,3 +36,13 @@ void ArmSubsystem::Periodic()
     frc::SmartDashboard::PutNumber("Intake motor temp", m_intakeMotor.GetMotorTemperature());
     frc::SmartDashboard::PutNumber("Limit Switch", limitSwitch.Get());
 }
+
+double ArmSubsystem::getEncoderValue()
+{
+    return m_encoder.GetPosition();
+}
+
+bool ArmSubsystem::getLimitSwitch()
+{
+    return limitSwitch.Get();
+}

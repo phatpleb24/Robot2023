@@ -16,6 +16,10 @@ class ArmSubsystem : public frc2::SubsystemBase
 
     void Periodic() override;
 
+    double getEncoderValue();
+
+    bool getLimitSwitch();
+
 
     private:
     rev::CANSparkMax m_armMotor{1, rev::CANSparkMax::MotorType::kBrushless};
