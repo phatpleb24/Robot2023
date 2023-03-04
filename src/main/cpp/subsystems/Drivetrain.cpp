@@ -9,6 +9,8 @@
 #include <units/voltage.h>
 #include <photonlib/PhotonUtils.h>
 #include <frc/Timer.h>
+#include "LimelightHelpers.h"
+#include <vector>
 
 Drivetrain::Drivetrain() {
   // Implementation of subsystem constructor goes here.
@@ -30,6 +32,8 @@ void Drivetrain::Periodic() {
   frc::SmartDashboard::PutNumber("Left Follower Temp", m_leftFollowerMotor.GetTemperature());
   frc::SmartDashboard::PutNumber("Right Front Temp", m_rightFrontMotor.GetTemperature());
   frc::SmartDashboard::PutNumber("Right Follower Temp", m_rightFollowerMotor.GetTemperature());
+  frc::SmartDashboard::PutBoolean("Slew Rate Flag", slewRateFlag);
+  frc::SmartDashboard::PutNumber("Pitch", m_imu.GetPitch());
 }
 
 void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {
@@ -37,7 +41,10 @@ void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {
 }
 void Drivetrain::ArcadeDrive(double x, double z)
 {
-  diffDrive.ArcadeDrive(m_rateLimiter.Calculate(x/1.5), z);
+  if(slewRateFlag)
+  diffDrive.ArcadeDrive(m_rateLimiter.Calculate(x), z);
+  else 
+  diffDrive.ArcadeDrive(x/2.0, z);
 }
 
 //   }
@@ -76,8 +83,11 @@ void Drivetrain::UpdateOdometry()
   //m_odometry.Update(m_imu.GetRotation2d(), left_distance, right_distance);
   //m_odometry.Update(m_imu.GetRotation2d(), NativeUnitsToDistanceMeters(m_leftFrontMotor.GetSelectedSensorPosition()), NativeUnitsToDistanceMeters(m_rightFrontMotor.GetSelectedSensorPosition()));
   m_estimator.Update(m_imu.GetRotation2d(), NativeUnitsToDistanceMeters(m_leftFrontMotor.GetSelectedSensorPosition()), NativeUnitsToDistanceMeters(m_rightFrontMotor.GetSelectedSensorPosition()));
-  /*if(table->GetNumber("tv", 0))
-  m_estimator.AddVisionMeasurement(frc::Pose2d(units::meter_t{table->GetNumber("x", 0)}, units::meter_t{table->GetNumber("y", 0)}, m_imu.GetRotation2d()), frc::Timer::GetFPGATimestamp() - (table->GetNumber("tl", 0)/1000.0) - (table->GetNumber("cl", 0)/1000.0));*/
+  if(table->GetNumber("tv", 0))
+    m_estimator.AddVisionMeasurement(
+      frc::Pose2d(units::meter_t{table->GetNumber("x", 0)}, 
+      units::meter_t{table->GetNumber("y", 0)}, m_imu.GetRotation2d()), 
+      frc::Timer::GetFPGATimestamp() - units::second_t{table->GetNumber("tl",0)/1000.0} - units::second_t{table->GetNumber("cl",0)/1000.0});
 }
 
 void Drivetrain::Init()
@@ -108,6 +118,8 @@ void Drivetrain::Init()
   frc::SmartDashboard::PutData("Right Follower Motor", &m_rightFollowerMotor);
   frc::SmartDashboard::PutData("Gyro", &m_imu);
   //frc::SmartDashboard::PutData(&diffDrive);
+
+  slewRateFlag = true;
 }
 
 int Drivetrain::DistanceToNativeUnits(units::meter_t position)
@@ -175,4 +187,9 @@ void Drivetrain::tankDriveVolts(units::volt_t left, units::volt_t right)
 void Drivetrain::SetMaxOutput(double x)
 {
   diffDrive.SetMaxOutput(x);
+}
+
+double Drivetrain::getPitch()
+{
+  return m_imu.GetPitch();
 }

@@ -63,9 +63,7 @@ void Robot::AutonomousPeriodic()
     if(commandCreator == nullptr)
     {
       m_autonomousCommand->Cancel();
-      delete m_autonomousCommand;
       m_container.m_drive.tankDriveVolts(0_V,0_V);
-      m_autonomousCommand = nullptr;
       commandCreator = std::make_unique<std::thread>([this] () {m_pendingCommand = m_container.AprilTagTrajectory();});      
     }
     else
@@ -74,9 +72,8 @@ void Robot::AutonomousPeriodic()
       {
         commandCreator->join();
         //commandCreator = nullptr;
-        m_autonomousCommand = m_pendingCommand;
+        m_autonomousCommand = std::move(m_pendingCommand);
         m_autonomousCommand->Schedule();
-        m_pendingCommand = nullptr;
       }
     
     }
@@ -88,10 +85,8 @@ void Robot::TeleopInit() {
   // teleop starts running. If you want the autonomous to
   // continue until interrupted by another command, remove
   // this line or comment it out.
-  if (m_autonomousCommand != nullptr) {
+  if (m_autonomousCommand) {
     m_autonomousCommand->Cancel();
-    delete m_autonomousCommand;
-    m_autonomousCommand = nullptr;
   }
 }
 
