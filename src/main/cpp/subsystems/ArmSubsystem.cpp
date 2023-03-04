@@ -9,23 +9,20 @@ ArmSubsystem::ArmSubsystem()
 void ArmSubsystem::Init()
 {
     m_armMotor.SetInverted(true);
+    m_intakeMotor.SetSmartCurrentLimit(20);
+    m_armMotor.SetSmartCurrentLimit(60);
 }
 
 void ArmSubsystem::moveArm(units::volt_t volts)
 {
-    m_armMotor.SetVoltage(volts);
+    //if(limitSwitch.Get()) m_armMotor.SetVoltage(0_V);
+    //else
+     m_armMotor.SetVoltage(volts);
 }
 
 void ArmSubsystem::moveIntake(units::volt_t volts)
 {
-    if(volts > 0_V)
-    {
-        if(limitSwitch.Get())
-        {
-            m_intakeMotor.SetVoltage(0_V);
-        }
-        else m_intakeMotor.SetVoltage(volts);
-    }
+    m_intakeMotor.SetVoltage(volts);
 }
 
 void ArmSubsystem::Periodic()
@@ -35,6 +32,8 @@ void ArmSubsystem::Periodic()
     frc::SmartDashboard::PutNumber("Arm motor temp", m_armMotor.GetMotorTemperature());
     frc::SmartDashboard::PutNumber("Intake motor temp", m_intakeMotor.GetMotorTemperature());
     frc::SmartDashboard::PutNumber("Limit Switch", limitSwitch.Get());
+    frc::SmartDashboard::PutNumber("Intake Current", m_intakeMotor.GetOutputCurrent());
+    frc::SmartDashboard::PutNumber("Arm Current", m_armMotor.GetOutputCurrent());
 }
 
 double ArmSubsystem::getEncoderValue()

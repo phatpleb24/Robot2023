@@ -30,6 +30,7 @@ class Drivetrain : public frc2::SubsystemBase {
   static constexpr int k100msPerSecond = 10;
   frc::Field2d m_field;
   std::shared_ptr<nt::NetworkTable> table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+  bool slewRateFlag;
   //photonlib::PhotonCamera camera{"Pi Camera"};
   Drivetrain();
 
@@ -57,6 +58,8 @@ class Drivetrain : public frc2::SubsystemBase {
   void tankDriveVolts(units::volt_t left, units::volt_t right);
 
   void SetMaxOutput(double x);
+
+  double getPitch();
 
  private:
   void Init();

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <frc2/command/SubsystemBase.h>
 #include <rev/CANSparkMax.h>
 #include <frc2/command/ProfiledPIDSubsystem.h>
@@ -27,3 +29,4 @@ class ArmSubsystem : public frc2::SubsystemBase
     rev::SparkMaxRelativeEncoder m_encoder{m_armMotor.GetEncoder()};
     frc::DigitalInput limitSwitch{0};
 };
+

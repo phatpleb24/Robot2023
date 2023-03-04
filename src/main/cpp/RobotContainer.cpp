@@ -4,7 +4,6 @@
 
 
 #include "RobotContainer.h"
-#include "commands/TeleopArcadeDrive.h"
 #include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
 #include "Constants.h"
 #include <units/velocity.h>
@@ -21,8 +20,8 @@
 #include <frc/trajectory/TrajectoryUtil.h>
 #include <frc2/command/RunCommand.h>
 #include <frc2/command/Commands.h>
-#include <frc2/command/button/JoystickButton.h>
 #include <wpi/fs.h>
+#include <frc2/command/button/JoystickButton.h>
 #include <photonlib/PhotonUtils.h>
 #include <numbers>
 #include "frc/smartdashboard/Smartdashboard.h"
@@ -30,7 +29,8 @@
 #include "networktables/NetworkTableInstance.h"
 #include "networktables/NetworkTableEntry.h"
 #include "networktables/NetworkTableValue.h"
-#include <time.h>
+#include "commands/PlacementSequence.h"
+#include "commands/Balance.h"
 #include <frc/Timer.h>
 
 RobotContainer::RobotContainer(){
@@ -38,11 +38,15 @@ RobotContainer::RobotContainer(){
 
   // Configure the button bindings
   ConfigureButtonBindings();
-  m_drive.SetDefaultCommand(frc2::RunCommand(
+
+}
+
+void RobotContainer::ConfigureButtonBindings() {
+   m_drive.SetDefaultCommand(frc2::RunCommand(
       [this] {
         if(m_joystick.GetLeftStickButtonPressed())
         {
-          if(m_drive.table->GetNumber("camMode", 0))
+          if(m_drive.table->GetNumber("camMode", 0) == 0)
           {
             m_drive.table->PutNumber("camMode", 1);
           }
@@ -50,6 +54,10 @@ RobotContainer::RobotContainer(){
           {
             m_drive.table->PutNumber("camMode", 0);
           }
+        }
+        if(m_joystick.GetRightStickButton())
+        {
+          m_drive.slewRateFlag = !m_drive.slewRateFlag;
         }
         double x = -m_joystick.GetRawAxis(1);
         double z = 0.0;
@@ -97,54 +105,10 @@ RobotContainer::RobotContainer(){
     {&m_arm}
   });
 
-  /*m_joystick.Y().OnTrue(frc2::cmd::Run(
-    [this]
-    {
-      m_arm.moveArm(1_V);
-    },
-    {&m_arm}
-  )).OnFalse(frc2::cmd::Run(
-    [this]
-    {
-      m_arm.moveArm(0_V);
-    },
-    {&m_arm}
-  ));
-
-  m_joystick.A().OnTrue(
-    frc2::cmd::Run([this] {m_arm.moveArm(-1_V);}, {&m_arm})
-  ).OnFalse(
-    frc2::cmd::Run([this] {m_arm.moveArm(0_V);}, {&m_arm})
-  );*/
-
-  /*m_joystick.RightBumper().OnTrue
-  (
-    frc2::cmd::Run([this] {m_arm.moveIntake(2_V);}, {&m_arm})
-  )
-  .OnFalse
-  (
-    frc2::cmd::Run([this] {m_arm.moveIntake(0_V);}, {&m_arm})
-  );
-
-  m_joystick.LeftBumper().OnTrue
-  (
-    frc2::cmd::Run([this] {m_arm.moveIntake(-2_V);}, {&m_arm})
-  )
-  .OnFalse
-  (
-    frc2::cmd::Run([this] {m_arm.moveIntake(0_V);}, {&m_arm})
-  );*/
-
   m_joystick.B().OnTrue(AprilTagTrajectory());
 }
 
-void RobotContainer::ConfigureButtonBindings() {
-  // Configure your button bindings here
-  frc2::JoystickButton(&m_joystick, frc::XboxController::Button::kA).OnTrue(&m_driveHalfSpeed).OnFalse(&m_driveFullSpeed);
-}
-
-frc2::Command* RobotContainer::GetAutonomousCommand() {
-  // An example command will be run in autonomous
+frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
 
   printf("Kelvin1 %.03f\n", frc::Timer::GetFPGATimestamp().value());
 
@@ -163,7 +127,7 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
   frc::Pose2d initialPose = frc::Pose2d{0_m, 0_m, 0_deg};
   frc::Pose2d finalPose;
 
-  //photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
+  
   finalPose = frc::Pose2d{2_m,2_m,0_deg};
 
   auto trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
@@ -196,22 +160,16 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
 
   printf("Kelvin2 %.03f\n", frc::Timer::GetFPGATimestamp().value());
-
-  return new frc2::SequentialCommandGroup(
-      std::move(ramseteCommand),
-      frc2::InstantCommand([this] { m_drive.tankDriveVolts(0_V, 0_V); }, {}),
-      frc2::InstantCommand([this] {m_arm.moveIntake(3_V);})
-      );
+  double armPos = m_arm.getEncoderValue();
+  return 
+      std::move(ramseteCommand).FinallyDo([this] (bool end){m_drive.tankDriveVolts(0_V,0_V);})
+      .AndThen([this] {m_arm.moveArm(2_V); }, {&m_arm}).Until([this] {return m_arm.getLimitSwitch();})
+      .AndThen([this] {m_arm.moveIntake(-2_V);}, {&m_arm}).WithTimeout(2_s)
+      .AndThen([this] { m_arm.moveArm(-2_V);}, {&m_arm}).Until([this, armPos] {return m_arm.getLimitSwitch() <= armPos;});
       //lmoo
 }
 
-frc2::Command* RobotContainer::TankDriveCommand()
-{
-  return new frc2::InstantCommand([this]{m_drive.tankDriveVolts(2_V,2_V);},{});
-}
-
-frc2::Command* RobotContainer::AprilTagTrajectory() {
-  // An example command will be run in autonomous
+frc2::CommandPtr RobotContainer::AprilTagTrajectory() {
   
   printf("KelvinDU1 %.03f\n", frc::Timer::GetFPGATimestamp().value());
   frc::DifferentialDriveVoltageConstraint autoVoltageConstraint
@@ -231,22 +189,15 @@ frc2::Command* RobotContainer::AprilTagTrajectory() {
   
   
   printf("KelvinDU2 %.03f\n", frc::Timer::GetFPGATimestamp().value());
-  //photonlib::PhotonPipelineResult result = m_drive.camera.GetLatestResult();
   if(m_drive.table->GetNumber("tv", 0.0))
   {
-    //photonlib::PhotonTrackedTarget target = result.GetBestTarget();
     units::meter_t range = photonlib::PhotonUtils::CalculateDistanceToTarget(
       vision::cameraHeight, vision::targetHeight, vision::cameraPitch, units::degree_t{m_drive.table->GetNumber("ty", 0.0)}
     );
-   // units::meter_t x = range * std::cos(target.GetYaw() *  std::numbers::pi / 180.0);
-    //units::meter_t y = range * std::sin(target.GetYaw() * std::numbers::pi / 180.0);
     frc::Translation2d translation(range, frc::Rotation2d{units::degree_t{-m_drive.table->GetNumber("tx", 0.0)}});
     frc::Transform2d transform(translation, frc::Rotation2d{0_deg});
     finalPose = initialPose.TransformBy(transform);
     
-    //finalPose = frc::Pose2d{-x, -y, 0_deg};
-    //wpi::outs() << std::to_string(range.value());
-    //frc::SmartDashboard::PutNumber("Distance", range.value());
   }
   else finalPose = frc::Pose2d{2_m,4_m,0_deg};
   
@@ -262,9 +213,6 @@ frc2::Command* RobotContainer::AprilTagTrajectory() {
 
   printf("KelvinDU4 %.03f\n", frc::Timer::GetFPGATimestamp().value());
 
-  //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);
-  
-  //m_drive.resetOdometry(trajectory.InitialPose());
   frc2::RamseteCommand ramseteCommand
   {
     trajectory,
@@ -279,8 +227,8 @@ frc2::Command* RobotContainer::AprilTagTrajectory() {
     {&m_drive},
   };
 printf("KelvinDU5\n");
-  return new frc2::SequentialCommandGroup(
+  return frc2::SequentialCommandGroup(
       std::move(ramseteCommand),
-      frc2::InstantCommand([this] { m_drive.tankDriveVolts(0_V, 0_V); }, {}));
+      frc2::InstantCommand([this] { m_drive.tankDriveVolts(0_V, 0_V); }, {})).ToPtr();
       //lmoo
 }

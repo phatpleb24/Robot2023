@@ -36,11 +36,11 @@ class RobotContainer {
   Drivetrain m_drive;
   ArmSubsystem m_arm;
 
-  frc2::Command* GetAutonomousCommand();
+  frc2::CommandPtr GetAutonomousCommand();
 
   frc2::Command* TankDriveCommand();
 
-  frc2::Command* AprilTagTrajectory();
+  frc2::CommandPtr AprilTagTrajectory();
 
 
   frc2::InstantCommand m_driveHalfSpeed{[this] {m_drive.SetMaxOutput(0.5);}, {}};
