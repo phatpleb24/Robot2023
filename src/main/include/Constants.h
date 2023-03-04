@@ -5,8 +5,10 @@
 #pragma once
 #include <units/voltage.h>
 #include <units/length.h>
+#include <units/angle.h>
 #include <frc/kinematics/DifferentialDriveKinematics.h>
 #include <frc/controller/SimpleMotorFeedForward.h>
+#include <ctre/Phoenix.h>
 
 /**
  * The Constants header provides a convenient place for teams to hold robot-wide
@@ -20,12 +22,34 @@
 
 namespace DriveConstants
 {
+    constexpr units::volt_t kS = 0.14848_V;
+    constexpr auto kV = 1.8528 * 1_V / 1_mps;
+    constexpr auto kA = 0.45158 * 1_V / 1_mps_sq;
+    constexpr units::meter_t kTrackWidth = 0.48251_m;
+    constexpr auto kVAngular = 2.1592 * 1_V/1_mps;
+    constexpr auto kAAngular = 0.53732 * 1_V / 1_mps_sq;
+    constexpr auto kRightDirection = TalonFXInvertType::Clockwise;
+    constexpr auto kLeftDirection = TalonFXInvertType::CounterClockwise;
+
+}
+
+namespace testRobot
+{  
     constexpr units::volt_t kS = 0.62045_V;
     constexpr auto kV = 2.5115 * 1_V / 1_mps;
     constexpr auto kA = 0.31661 * 1_V / 1_mps_sq;
-    constexpr units::meter_t trackWidth = 0.69_m;
+    constexpr units::meter_t kTrackWidth = 0.69_m;
     constexpr auto kVAngular = 2.7453 * 1_V/1_mps;
     constexpr auto kAAngular = 0.054563 * 1_V / 1_mps_sq;
-
+    constexpr auto kLeftDirection = TalonFXInvertType::Clockwise;
+    constexpr auto kRightDirection = TalonFXInvertType::CounterClockwise;
 }
     
+namespace vision
+{
+    constexpr units::meter_t cameraHeight = 53_in;
+    constexpr units::meter_t targetHeight = 28.5_in;
+    constexpr units::degree_t cameraPitch = -3_deg;
+    constexpr units::meter_t retroHeight = 44_in;
+    constexpr units::meter_t aprilTagArray[9] = {0_in, 18.22_in, 18.22_in, 18.22_in, 27.38_in, 27.38_in, 18.22_in, 18.22_in, 18.22_in}; 
+}

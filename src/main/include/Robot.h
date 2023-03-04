@@ -6,6 +6,7 @@
 
 #include <frc/TimedRobot.h>
 #include <frc2/command/Command.h>
+#include <thread>
 
 #include "RobotContainer.h"
 
@@ -28,5 +29,11 @@ class Robot : public frc::TimedRobot {
   // doesn't have undefined behavior and potentially crash.
   frc2::Command* m_autonomousCommand = nullptr;
 
+  frc2::Command* m_pendingCommand = nullptr;
+
   RobotContainer m_container;
+
+  std::unique_ptr<std::thread> commandCreator;
+
+  bool aprilTagFlag = false;
 };

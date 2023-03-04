@@ -7,6 +7,8 @@
 #include <frc/RobotController.h>
 #include <numbers>
 #include <units/voltage.h>
+#include <photonlib/PhotonUtils.h>
+#include <frc/Timer.h>
 
 Drivetrain::Drivetrain() {
   // Implementation of subsystem constructor goes here.
@@ -16,17 +18,26 @@ Drivetrain::Drivetrain() {
 void Drivetrain::Periodic() {
   // Implementation of subsystem periodic method goes here.
   UpdateOdometry();
-  m_field.SetRobotPose(m_odometry.GetPose());
-  /*frc::SmartDashboard::PutNumber("Left Velocity", m_leftFrontMotor.GetSelectedSensorVelocity());
+  m_field.SetRobotPose(m_estimator.GetEstimatedPosition());
+  frc::SmartDashboard::PutNumber("Distance", photonlib::PhotonUtils::CalculateDistanceToTarget(vision::cameraHeight, vision::retroHeight, vision::cameraPitch, units::angle::degree_t{table->GetNumber("ty", 0.0)}).value());
+  frc::SmartDashboard::PutNumber("Left Velocity", m_leftFrontMotor.GetSelectedSensorVelocity());
   frc::SmartDashboard::PutNumber("Right Velocity", m_rightFrontMotor.GetSelectedSensorVelocity());
-  frc::SmartDashboard::PutNumber("Left Front Voltage", m_leftFrontMotor.GetMotorOutputVoltage());
+  /*frc::SmartDashboard::PutNumber("Left Front Voltage", m_leftFrontMotor.GetMotorOutputVoltage());
   frc::SmartDashboard::PutNumber("Right Front Voltage", m_rightFrontMotor.GetMotorOutputVoltage());
   frc::SmartDashboard::PutNumber("Left Follower Voltage", m_leftFollowerMotor.GetMotorOutputVoltage());
   frc::SmartDashboard::PutNumber("Right Follower Voltage", m_rightFollowerMotor.GetMotorOutputVoltage());*/
+  frc::SmartDashboard::PutNumber("Left Front Temp", m_leftFrontMotor.GetTemperature());
+  frc::SmartDashboard::PutNumber("Left Follower Temp", m_leftFollowerMotor.GetTemperature());
+  frc::SmartDashboard::PutNumber("Right Front Temp", m_rightFrontMotor.GetTemperature());
+  frc::SmartDashboard::PutNumber("Right Follower Temp", m_rightFollowerMotor.GetTemperature());
 }
 
 void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {
-  diffDrive.ArcadeDrive(xaxisSpeed/2.0, (l1-r1)/2.0);
+  diffDrive.ArcadeDrive(xaxisSpeed/2.0, (r1-l1)/2.0);
+}
+void Drivetrain::ArcadeDrive(double x, double z)
+{
+  diffDrive.ArcadeDrive(m_rateLimiter.Calculate(x/1.5), z);
 }
 
 //   }
@@ -63,8 +74,10 @@ void Drivetrain::UpdateOdometry()
   //auto right_distance = (c/kGearRatio) * m_rightFrontMotor.GetSelectedSensorPosition() / kUnitsPerRevolution;
   //auto left_distance = (c/kGearRatio) * m_leftFrontMotor.GetSelectedSensorPosition() / kUnitsPerRevolution;
   //m_odometry.Update(m_imu.GetRotation2d(), left_distance, right_distance);
-  m_odometry.Update(m_imu.GetRotation2d(), NativeUnitsToDistanceMeters(m_leftFrontMotor.GetSelectedSensorPosition()), NativeUnitsToDistanceMeters(m_rightFrontMotor.GetSelectedSensorPosition()));
-
+  //m_odometry.Update(m_imu.GetRotation2d(), NativeUnitsToDistanceMeters(m_leftFrontMotor.GetSelectedSensorPosition()), NativeUnitsToDistanceMeters(m_rightFrontMotor.GetSelectedSensorPosition()));
+  m_estimator.Update(m_imu.GetRotation2d(), NativeUnitsToDistanceMeters(m_leftFrontMotor.GetSelectedSensorPosition()), NativeUnitsToDistanceMeters(m_rightFrontMotor.GetSelectedSensorPosition()));
+  /*if(table->GetNumber("tv", 0))
+  m_estimator.AddVisionMeasurement(frc::Pose2d(units::meter_t{table->GetNumber("x", 0)}, units::meter_t{table->GetNumber("y", 0)}, m_imu.GetRotation2d()), frc::Timer::GetFPGATimestamp() - (table->GetNumber("tl", 0)/1000.0) - (table->GetNumber("cl", 0)/1000.0));*/
 }
 
 void Drivetrain::Init()
@@ -77,17 +90,23 @@ void Drivetrain::Init()
   m_rightFollowerMotor.Follow(m_rightFrontMotor);
   m_leftFollowerMotor.Follow(m_leftFrontMotor);
 
-  m_rightFrontMotor.SetInverted(TalonFXInvertType::CounterClockwise);
-  m_rightFollowerMotor.SetInverted(TalonFXInvertType::FollowMaster);
-  m_leftFrontMotor.SetInverted(TalonFXInvertType::Clockwise);
-  m_leftFollowerMotor.SetInverted(TalonFXInvertType::FollowMaster);
+  m_rightFrontMotor.SetInverted(DriveConstants::kRightDirection);
+  m_rightFollowerMotor.SetInverted(DriveConstants::kRightDirection);
+  m_leftFrontMotor.SetInverted(DriveConstants::kLeftDirection);
+  m_leftFollowerMotor.SetInverted(DriveConstants::kLeftDirection);
 
   m_rightFrontMotor.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor);
   m_rightFrontMotor.SetSelectedSensorPosition(0);
   m_leftFrontMotor.ConfigSelectedFeedbackSensor(FeedbackDevice::IntegratedSensor);
   m_leftFrontMotor.SetSelectedSensorPosition(0);
 
+
   frc::SmartDashboard::PutData("Field", &m_field);
+  frc::SmartDashboard::PutData("Left Front Motor", &m_leftFrontMotor);
+  frc::SmartDashboard::PutData("Left Follower Motor", &m_leftFollowerMotor);
+  frc::SmartDashboard::PutData("Right Front Motor", &m_rightFrontMotor);
+  frc::SmartDashboard::PutData("Right Follower Motor", &m_rightFollowerMotor);
+  frc::SmartDashboard::PutData("Gyro", &m_imu);
   //frc::SmartDashboard::PutData(&diffDrive);
 }
 
@@ -131,13 +150,14 @@ void Drivetrain::resetOdometry(frc::Pose2d pose)
   m_rightFollowerMotor.SetSelectedSensorPosition(0);
   m_leftFollowerMotor.SetSelectedSensorPosition(0);
   m_leftFrontMotor.SetSelectedSensorPosition(0);
-  m_odometry.ResetPosition(m_imu.GetRotation2d(), 0_m, 0_m, pose);
-  
+  //m_odometry.ResetPosition(m_imu.GetRotation2d(), 0_m, 0_m, pose);
+  m_estimator.ResetPosition(m_imu.GetRotation2d(), 0_m, 0_m, pose);
 }
 
 frc::Pose2d Drivetrain::getPose()
 {
-  return m_odometry.GetPose();
+ // return m_odometry.GetPose();
+  return m_estimator.GetEstimatedPosition();
 }
 
 frc::DifferentialDriveWheelSpeeds Drivetrain::getWheelSpeed()
