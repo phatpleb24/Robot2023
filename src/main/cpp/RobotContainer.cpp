@@ -90,15 +90,15 @@ void RobotContainer::ConfigureButtonBindings() {
     [this]
     {
       double x = -m_joystick.GetRawAxis(5);
-      m_arm.moveArm(1.2_V * x);
+      m_arm.moveArm(2_V * x);
 
       if(m_joystick.GetBackButton())
       {
-        m_arm.moveIntake(-4_V);
+        m_arm.moveIntake(-12_V);
       }
       else if(m_joystick.GetStartButton())
       {
-        m_arm.moveIntake(4_V);
+        m_arm.moveIntake(12_V);
       }
       else m_arm.moveIntake(0_V);
     },
