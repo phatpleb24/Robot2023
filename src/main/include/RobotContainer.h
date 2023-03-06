@@ -40,6 +40,8 @@ class RobotContainer {
 
   frc2::CommandPtr GetAutonomousCommand();
 
+  frc2::CommandPtr Autonomous2();
+
   frc2::Command* TankDriveCommand();
 
   frc2::CommandPtr AprilTagTrajectory();

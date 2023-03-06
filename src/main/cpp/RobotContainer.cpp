@@ -94,18 +94,18 @@ void RobotContainer::ConfigureButtonBindings() {
 
       if(m_joystick.GetBackButton())
       {
-        m_arm.moveIntake(-4_V);
+        m_arm.moveIntake(-12_V);
       }
       else if(m_joystick.GetStartButton())
       {
-        m_arm.moveIntake(4_V);
+        m_arm.moveIntake(12_V);
       }
       else m_arm.moveIntake(0_V);
     },
     {&m_arm}
   });
 
-  m_joystick.B().OnTrue(AprilTagTrajectory());
+  m_joystick.B().OnTrue(Balance(&m_drive).ToPtr());
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
@@ -165,8 +165,34 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
       std::move(ramseteCommand).FinallyDo([this] (bool end){m_drive.tankDriveVolts(0_V,0_V);})
       .AndThen([this] {m_arm.moveArm(2_V); }, {&m_arm}).Until([this] {return m_arm.getLimitSwitch();})
       .AndThen([this] {m_arm.moveIntake(-2_V);}, {&m_arm}).WithTimeout(2_s)
-      .AndThen([this] { m_arm.moveArm(-2_V);}, {&m_arm}).Until([this, armPos] {return m_arm.getLimitSwitch() <= armPos;});
-      //lmoo
+      .AndThen([this] { m_arm.moveArm(-2_V);}, {&m_arm}).Until([this, armPos] {return m_arm.getLimitSwitch() <= armPos;})
+      .AndThen([this] {m_drive.ArcadeDrive(0, .3);}, {&m_drive}).Until([this] {return m_drive.getPose().Rotation().Degrees().value() == 180.0;});
+      //lmoo 
+}
+
+frc2::CommandPtr RobotContainer::Autonomous2() {
+  frc::Trajectory pathWeaverTraj;
+  fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
+  deployDirectory = deployDirectory / "output" / "test.wpilib.json";
+  pathWeaverTraj = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory.string());
+
+  //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);
+  
+  m_drive.resetOdometry(pathWeaverTraj.InitialPose());
+  frc2::RamseteCommand ramseteCommand
+  {
+    pathWeaverTraj,
+    [this]() {return m_drive.getPose();},
+    frc::RamseteController{},
+    frc::SimpleMotorFeedforward<units::meters>{testRobot::kS, testRobot::kV, testRobot::kA},
+    frc::DifferentialDriveKinematics(testRobot::kTrackWidth),
+    [this]() {return m_drive.getWheelSpeed();},
+    frc2::PIDController{.5, 0, 0},
+    frc2::PIDController{.5, 0, 0},
+    [this](auto left, auto right){m_drive.tankDriveVolts(left, right);},
+    {&m_drive},
+  };
+  return std::move(ramseteCommand).AndThen([this] {m_drive.tankDriveVolts(0_V,0_V);}, {&m_drive});
 }
 
 frc2::CommandPtr RobotContainer::AprilTagTrajectory() {

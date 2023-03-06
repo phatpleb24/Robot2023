@@ -9,7 +9,7 @@ ArmSubsystem::ArmSubsystem()
 void ArmSubsystem::Init()
 {
     m_armMotor.SetInverted(true);
-    m_intakeMotor.SetSmartCurrentLimit(20);
+    m_intakeMotor.SetSmartCurrentLimit(25);
     m_armMotor.SetSmartCurrentLimit(60);
 }
 
