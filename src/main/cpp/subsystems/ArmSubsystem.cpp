@@ -34,6 +34,7 @@ void ArmSubsystem::Periodic()
     frc::SmartDashboard::PutNumber("Limit Switch", limitSwitch.Get());
     frc::SmartDashboard::PutNumber("Intake Current", m_intakeMotor.GetOutputCurrent());
     frc::SmartDashboard::PutNumber("Arm Current", m_armMotor.GetOutputCurrent());
+    frc::SmartDashboard::PutNumber("Arm Encoder", m_encoder.GetPosition());
 }
 
 double ArmSubsystem::getEncoderValue()
