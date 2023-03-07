@@ -6,6 +6,7 @@ class Balance : public frc2::CommandHelper<frc2::CommandBase, Balance>
 {
     public:
     Balance(Drivetrain* drive);
+    void Initialize() override;
     void Execute() override;
     bool IsFinished() override;
 
@@ -14,4 +15,8 @@ class Balance : public frc2::CommandHelper<frc2::CommandBase, Balance>
     bool timerStarted;
     double pitch;
     double timer;
+    double maxPitch;
+    double maxSpeed;
+    double pitchTolerance;
+    double balanceDuration;
 };
