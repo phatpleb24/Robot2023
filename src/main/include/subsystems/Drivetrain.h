@@ -63,6 +63,8 @@ class Drivetrain : public frc2::SubsystemBase {
 
   double getPitch();
 
+  double getRoll();
+
  private:
   void Init();
   void UpdateOdometry();

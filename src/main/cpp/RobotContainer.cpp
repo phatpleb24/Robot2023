@@ -104,8 +104,8 @@ void RobotContainer::ConfigureButtonBindings() {
     },
     {&m_arm}
   });
-
-  m_joystick.B().OnTrue(Balance(&m_drive).ToPtr());
+  Balance* balanceCMD = new Balance(&m_drive);
+  m_joystick.B().OnTrue(balanceCMD);
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {

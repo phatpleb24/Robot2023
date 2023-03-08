@@ -19,4 +19,6 @@ class Balance : public frc2::CommandHelper<frc2::CommandBase, Balance>
     double maxSpeed;
     double pitchTolerance;
     double balanceDuration;
+    double debugTimestamp;
+    double levelAngle;
 };

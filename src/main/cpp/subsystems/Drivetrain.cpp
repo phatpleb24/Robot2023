@@ -33,7 +33,10 @@ void Drivetrain::Periodic() {
   frc::SmartDashboard::PutNumber("Right Front Temp", m_rightFrontMotor.GetTemperature());
   frc::SmartDashboard::PutNumber("Right Follower Temp", m_rightFollowerMotor.GetTemperature());
   frc::SmartDashboard::PutBoolean("Slew Rate Flag", slewRateFlag);
-  frc::SmartDashboard::PutNumber("Pitch", m_imu.GetPitch());
+  //frc::SmartDashboard::PutNumber("Pitch", m_imu.GetPitch());
+  frc::SmartDashboard::PutNumber("Left Current", m_leftFrontMotor.GetOutputCurrent());
+  frc::SmartDashboard::PutNumber("Right Current", m_rightFrontMotor.GetOutputCurrent());
+  frc::SmartDashboard::PutNumber("Pitch", m_imu.GetRoll());
 }
 
 void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {
@@ -192,4 +195,9 @@ void Drivetrain::SetMaxOutput(double x)
 double Drivetrain::getPitch()
 {
   return m_imu.GetPitch();
+}
+
+double Drivetrain::getRoll()
+{
+  return m_imu.GetRoll();
 }
