@@ -92,15 +92,33 @@ void RobotContainer::ConfigureButtonBindings() {
       double x = -m_joystick.GetRawAxis(5);
       m_arm.moveArm(2_V * x);
 
-      if(m_joystick.GetBackButton())
+      if(m_joystick.GetLeftBumperPressed())
       {
-        m_arm.moveIntake(-12_V);
+        if (m_arm.intakeState != 1){
+          m_arm.intakeState = 1;
+        }
+        else {
+          m_arm.intakeState = 0;
+        }
       }
-      else if(m_joystick.GetStartButton())
+      else if(m_joystick.GetRightBumperPressed())
       {
-        m_arm.moveIntake(12_V);
+        if (m_arm.intakeState != -1){
+          m_arm.intakeState = -1;
+        }
+        else {
+          m_arm.intakeState = 0;
+        }
+      } 
+      if (m_arm.intakeState==1){
+        m_arm.moveIntake(7.5_V);
       }
-      else m_arm.moveIntake(0_V);
+      else if (m_arm.intakeState==-1){
+        m_arm.moveIntake(-9_V);
+      }
+      else if (m_arm.intakeState==0){
+        m_arm.moveIntake(0_V);
+      }
     },
     {&m_arm}
   });
@@ -138,15 +156,15 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
   );
   frc::Trajectory pathWeaverTraj;
   fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
-  deployDirectory = deployDirectory / "output" / "path3.wpilib.json";
+  deployDirectory = deployDirectory / "output" / "middleStart.wpilib.json";
   pathWeaverTraj = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory.string());
 
   //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);
   
-  m_drive.resetOdometry(trajectory.InitialPose());
+  m_drive.resetOdometry(pathWeaverTraj.InitialPose());
   frc2::RamseteCommand ramseteCommand
   {
-    trajectory,
+    pathWeaverTraj,
     [this]() {return m_drive.getPose();},
     frc::RamseteController{},
     frc::SimpleMotorFeedforward<units::meters>{testRobot::kS, testRobot::kV, testRobot::kA},
@@ -160,13 +178,12 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
 
 
   printf("Kelvin2 %.03f\n", frc::Timer::GetFPGATimestamp().value());
+  PlacementSequence placeCMD = PlacementSequence(&m_arm);
   double armPos = m_arm.getEncoderValue();
   return 
-      std::move(ramseteCommand).FinallyDo([this] (bool end){m_drive.tankDriveVolts(0_V,0_V);})
-      .AndThen([this] {m_arm.moveArm(2_V); }, {&m_arm}).Until([this] {return m_arm.getLimitSwitch();})
-      .AndThen([this] {m_arm.moveIntake(-2_V);}, {&m_arm}).WithTimeout(2_s)
-      .AndThen([this] { m_arm.moveArm(-2_V);}, {&m_arm}).Until([this, armPos] {return m_arm.getLimitSwitch() <= armPos;})
-      .AndThen([this] {m_drive.ArcadeDrive(0, .3);}, {&m_drive}).Until([this] {return m_drive.getPose().Rotation().Degrees().value() == 180.0;});
+      std::move(ramseteCommand).ToPtr()/*.FinallyDo([this] (bool end){m_drive.tankDriveVolts(0_V,0_V);})*/
+      .AndThen(std::move(placeCMD).ToPtr());
+      //.AndThen([this] {m_drive.ArcadeDrive(0, .3);}, {&m_drive}).Until([this] {return m_drive.getPose().Rotation().Degrees().value() == 180.0;});
       //lmoo 
 }
 
@@ -257,4 +274,30 @@ printf("KelvinDU5\n");
       std::move(ramseteCommand),
       frc2::InstantCommand([this] { m_drive.tankDriveVolts(0_V, 0_V); }, {})).ToPtr();
       //lmoo
+}
+
+frc2::CommandPtr RobotContainer::midChargeCMD()
+{
+  frc::Trajectory pathWeaverTraj;
+  fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
+  deployDirectory = deployDirectory / "output" / "moveToChargeMid.wpilib.json";
+  pathWeaverTraj = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory.string());
+
+  //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);
+  
+  m_drive.resetOdometry(pathWeaverTraj.InitialPose());
+  frc2::RamseteCommand ramseteCommand
+  {
+    pathWeaverTraj,
+    [this]() {return m_drive.getPose();},
+    frc::RamseteController{},
+    frc::SimpleMotorFeedforward<units::meters>{testRobot::kS, testRobot::kV, testRobot::kA},
+    frc::DifferentialDriveKinematics(testRobot::kTrackWidth),
+    [this]() {return m_drive.getWheelSpeed();},
+    frc2::PIDController{.5, 0, 0},
+    frc2::PIDController{.5, 0, 0},
+    [this](auto left, auto right){m_drive.tankDriveVolts(left, right);},
+    {&m_drive},
+  };
+  return GetAutonomousCommand().AndThen(std::move(ramseteCommand).ToPtr()).AndThen(Balance(&m_drive).ToPtr());
 }

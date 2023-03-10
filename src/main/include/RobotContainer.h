@@ -46,6 +46,7 @@ class RobotContainer {
 
   frc2::CommandPtr AprilTagTrajectory();
 
+  frc2::CommandPtr midChargeCMD();
 
   frc2::InstantCommand m_driveHalfSpeed{[this] {m_drive.SetMaxOutput(0.5);}, {}};
   frc2::InstantCommand m_driveFullSpeed{[this] {m_drive.SetMaxOutput(1);}, {}};

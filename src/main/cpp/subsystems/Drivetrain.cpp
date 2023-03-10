@@ -36,7 +36,9 @@ void Drivetrain::Periodic() {
   //frc::SmartDashboard::PutNumber("Pitch", m_imu.GetPitch());
   frc::SmartDashboard::PutNumber("Left Current", m_leftFrontMotor.GetOutputCurrent());
   frc::SmartDashboard::PutNumber("Right Current", m_rightFrontMotor.GetOutputCurrent());
-  frc::SmartDashboard::PutNumber("Pitch", m_imu.GetRoll());
+  frc::SmartDashboard::PutNumber("Pitch", m_imu.GetRoll());  
+  frc::SmartDashboard::PutNumber("Ultrasonic", m_ultraSonic.Get());
+  frc::SmartDashboard::PutNumber("Ultrasonic Filtered", m_ultraSonicFilter.Calculate(m_ultraSonic.Get()));
 }
 
 void Drivetrain::ArcadeDrive(double xaxisSpeed, double l1, double r1) {

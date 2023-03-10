@@ -14,6 +14,8 @@ class ArmSubsystem : public frc2::SubsystemBase
 
     void moveArm(units::volt_t volts);
 
+    int intakeState = 0;
+
     void moveIntake(units::volt_t volts);
 
     void Periodic() override;

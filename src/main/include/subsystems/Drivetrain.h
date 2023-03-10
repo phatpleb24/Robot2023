@@ -21,6 +21,9 @@
 #include <frc/StateSpaceUtil.h>
 #include <frc/filter/SlewRateLimiter.h>
 #include <units/dimensionless.h>
+#include <frc/AnalogInput.h>
+#include <frc/AnalogPotentiometer.h>
+#include <frc/filter/MedianFilter.h>
 
 class Drivetrain : public frc2::SubsystemBase {
  public:
@@ -75,6 +78,12 @@ class Drivetrain : public frc2::SubsystemBase {
   WPI_TalonFX m_leftFrontMotor{8};//8
   WPI_TalonFX m_leftFollowerMotor{7};//7
   WPI_Pigeon2 m_imu{0};
+
+  
+  frc::AnalogInput m_analog{3};
+  frc::AnalogPotentiometer m_ultraSonic{&m_analog};
+  frc::MedianFilter<double> m_ultraSonicFilter{5};
+  double sensorToFt = 5.8824;
 
   /*WPI_TalonFX m_rightFrontMotor{1};//6
   WPI_TalonFX m_rightFollowerMotor{2};//5
