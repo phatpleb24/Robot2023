@@ -56,6 +56,7 @@ class RobotContainer {
   //frc::SendableChooser<frc2::Command*> m_chooser;
   frc2::CommandXboxController m_joystick{0};
   frc2::PIDController controller{1,0,0};
+  frc2::CommandXboxController m_joystick2{1};
 
   void ConfigureButtonBindings();
   units::meter_t cameraHeight = 0.08_m;

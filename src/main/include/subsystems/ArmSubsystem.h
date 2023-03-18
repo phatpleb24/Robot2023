@@ -27,7 +27,7 @@ class ArmSubsystem : public frc2::SubsystemBase
 
     private:
     rev::CANSparkMax m_armMotor{1, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_intakeMotor{2, rev::CANSparkMax::MotorType::kBrushless};
+    rev::CANSparkMax m_intakeMotor{2, rev::CANSparkMax::MotorType::kBrushed};
     rev::SparkMaxRelativeEncoder m_encoder{m_armMotor.GetEncoder()};
     frc::DigitalInput limitSwitch{0};
 };

@@ -88,11 +88,11 @@ void Drivetrain::UpdateOdometry()
   //m_odometry.Update(m_imu.GetRotation2d(), left_distance, right_distance);
   //m_odometry.Update(m_imu.GetRotation2d(), NativeUnitsToDistanceMeters(m_leftFrontMotor.GetSelectedSensorPosition()), NativeUnitsToDistanceMeters(m_rightFrontMotor.GetSelectedSensorPosition()));
   m_estimator.Update(m_imu.GetRotation2d(), NativeUnitsToDistanceMeters(m_leftFrontMotor.GetSelectedSensorPosition()), NativeUnitsToDistanceMeters(m_rightFrontMotor.GetSelectedSensorPosition()));
-  if(table->GetNumber("tv", 0))
+  /*if(table->GetNumber("tv", 0))
     m_estimator.AddVisionMeasurement(
       frc::Pose2d(units::meter_t{table->GetNumber("x", 0)}, 
       units::meter_t{table->GetNumber("y", 0)}, m_imu.GetRotation2d()), 
-      frc::Timer::GetFPGATimestamp() - units::second_t{table->GetNumber("tl",0)/1000.0} - units::second_t{table->GetNumber("cl",0)/1000.0});
+      frc::Timer::GetFPGATimestamp() - units::second_t{table->GetNumber("tl",0)/1000.0} - units::second_t{table->GetNumber("cl",0)/1000.0});*/
 }
 
 void Drivetrain::Init()

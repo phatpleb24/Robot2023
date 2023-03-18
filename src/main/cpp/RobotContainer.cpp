@@ -82,6 +82,8 @@ void RobotContainer::ConfigureButtonBindings() {
           z = (m_joystick.GetRawAxis(2) - m_joystick.GetRawAxis(3)) / 2.0;
         }
         m_drive.ArcadeDrive(x, z);
+        frc::SmartDashboard::PutNumber("Joystick x", x);
+        frc::SmartDashboard::PutNumber("Joystick z", z);
       },
       {&m_drive}));
 
@@ -89,10 +91,10 @@ void RobotContainer::ConfigureButtonBindings() {
   {
     [this]
     {
-      double x = -m_joystick.GetRawAxis(5);
+      double x = -m_joystick2.GetRawAxis(5);
       m_arm.moveArm(2_V * x);
 
-      if(m_joystick.GetLeftBumperPressed())
+      if(m_joystick2.GetLeftBumperPressed())
       {
         if (m_arm.intakeState != 1){
           m_arm.intakeState = 1;
@@ -101,7 +103,7 @@ void RobotContainer::ConfigureButtonBindings() {
           m_arm.intakeState = 0;
         }
       }
-      else if(m_joystick.GetRightBumperPressed())
+      else if(m_joystick2.GetRightBumperPressed())
       {
         if (m_arm.intakeState != -1){
           m_arm.intakeState = -1;
@@ -119,11 +121,20 @@ void RobotContainer::ConfigureButtonBindings() {
       else if (m_arm.intakeState==0){
         m_arm.moveIntake(0_V);
       }
+      /*if(m_joystick2.GetLeftBumper()){
+        m_arm.moveIntake(12_V);
+      }
+      else if (m_joystick2.GetRightBumper()){
+        m_arm.moveIntake(-9_V);
+      }
+      else {
+        m_arm.moveIntake(0_V);
+      }*/
     },
     {&m_arm}
   });
   Balance* balanceCMD = new Balance(&m_drive);
-  m_joystick.B().OnTrue(balanceCMD);
+  m_joystick.B().WhileTrue(balanceCMD);
 }
 
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
@@ -190,7 +201,7 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
 frc2::CommandPtr RobotContainer::Autonomous2() {
   frc::Trajectory pathWeaverTraj;
   fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
-  deployDirectory = deployDirectory / "output" / "test.wpilib.json";
+  deployDirectory = deployDirectory / "output" / "lowOutRed.wpilib.json";
   pathWeaverTraj = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory.string());
 
   //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);
@@ -209,7 +220,8 @@ frc2::CommandPtr RobotContainer::Autonomous2() {
     [this](auto left, auto right){m_drive.tankDriveVolts(left, right);},
     {&m_drive},
   };
-  return std::move(ramseteCommand).AndThen([this] {m_drive.tankDriveVolts(0_V,0_V);}, {&m_drive});
+  PlacementSequence placeCMD = PlacementSequence(&m_arm);
+  return std::move(placeCMD).ToPtr();//.AndThen(std::move(ramseteCommand).ToPtr()).AndThen([this] {m_drive.tankDriveVolts(0_V,0_V);}, {&m_drive});
 }
 
 frc2::CommandPtr RobotContainer::AprilTagTrajectory() {
@@ -280,11 +292,10 @@ frc2::CommandPtr RobotContainer::midChargeCMD()
 {
   frc::Trajectory pathWeaverTraj;
   fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
-  deployDirectory = deployDirectory / "output" / "moveToChargeMid.wpilib.json";
+  deployDirectory = deployDirectory / "output" / "moveToChargeMidpath.wpilib.json";
   pathWeaverTraj = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory.string());
 
   //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);
-  
   m_drive.resetOdometry(pathWeaverTraj.InitialPose());
   frc2::RamseteCommand ramseteCommand
   {
@@ -299,5 +310,7 @@ frc2::CommandPtr RobotContainer::midChargeCMD()
     [this](auto left, auto right){m_drive.tankDriveVolts(left, right);},
     {&m_drive},
   };
-  return GetAutonomousCommand().AndThen(std::move(ramseteCommand).ToPtr()).AndThen(Balance(&m_drive).ToPtr());
+  Balance balanceCMD = Balance(&m_drive);
+  PlacementSequence placeCMD = PlacementSequence(&m_arm);
+  return std::move(placeCMD).ToPtr().AndThen(std::move(ramseteCommand).ToPtr()).AndThen(std::move(balanceCMD).ToPtr());
 }

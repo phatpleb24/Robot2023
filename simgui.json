@@ -2,7 +2,12 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Field": "Field2d"
+      "/SmartDashboard/Field": "Field2d",
+      "/SmartDashboard/Gyro": "Gyro",
+      "/SmartDashboard/Left Follower Motor": "Motor Controller",
+      "/SmartDashboard/Left Front Motor": "Motor Controller",
+      "/SmartDashboard/Right Follower Motor": "Motor Controller",
+      "/SmartDashboard/Right Front Motor": "Motor Controller"
     },
     "windows": {
       "/SmartDashboard/Field": {
