@@ -32,6 +32,12 @@ class Robot : public frc::TimedRobot {
   std::optional<frc2::CommandPtr> m_midCommand;
   std::optional<frc2::CommandPtr> m_pendingCommand;
 
+  frc::SendableChooser<std::string> chooser;
+  const std::string leftCMD = "Left";
+  const std::string midCharge = "Charge";
+  const std::string midNoCharge = "No Charge";
+  const std::string rightCMD = "Right";
+
   RobotContainer m_container;
 
   std::unique_ptr<std::thread> commandCreator;

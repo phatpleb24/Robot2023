@@ -198,10 +198,10 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
       //lmoo 
 }
 
-frc2::CommandPtr RobotContainer::Autonomous2() {
+frc2::CommandPtr RobotContainer::Autonomous2(std::string file) {
   frc::Trajectory pathWeaverTraj;
   fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
-  deployDirectory = deployDirectory / "output" / "lowOutRed.wpilib.json";
+  deployDirectory = deployDirectory / "output" / file;
   pathWeaverTraj = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory.string());
 
   //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);

@@ -40,7 +40,7 @@ class RobotContainer {
 
   frc2::CommandPtr GetAutonomousCommand();
 
-  frc2::CommandPtr Autonomous2();
+  frc2::CommandPtr Autonomous2(std::string file);
 
   frc2::Command* TankDriveCommand();
 

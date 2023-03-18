@@ -2,6 +2,8 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+#pragma once
+
 #include "Robot.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -10,12 +12,20 @@
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/DataLogManager.h>
 #include <units/length.h>
+#include <commands/PlacementSequence.h>
 
 void Robot::RobotInit()
 {
   SetNetworkTablesFlushEnabled(true);
   
   frc::DataLogManager::Start();
+
+  chooser.SetDefaultOption(midCharge, midCharge);
+  chooser.AddOption(leftCMD, leftCMD);
+  chooser.AddOption(rightCMD, rightCMD);
+  chooser.AddOption(midCharge, midCharge);
+  chooser.AddOption(midNoCharge, midNoCharge);
+  frc::SmartDashboard::PutData("Auto Modes", &chooser);
 }
 
 /**
@@ -44,12 +54,25 @@ void Robot::DisabledPeriodic() {}
  * RobotContainer} class.
  */
 void Robot::AutonomousInit() {
-  m_autonomousCommand = m_container.midChargeCMD();
-  if (m_autonomousCommand) {
-    m_autonomousCommand->Schedule();
+  std::string selected = chooser.GetSelected();
+  if(selected == midCharge)
+  {
+    m_autonomousCommand = m_container.midChargeCMD();
+  }
+  else if(selected == midNoCharge)
+  {
+    m_autonomousCommand = PlacementSequence(&(m_container.m_arm)).ToPtr();
+  }
+  else if(selected == leftCMD)
+  {
+    m_autonomousCommand = m_container.Autonomous2("lowOutRed.wpilib.json");
+  }
+  else
+  {
+    m_autonomousCommand = m_container.Autonomous2("lowOut.wpilib.json");
   }
 }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////b;;;;;;;;bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb;;;;            
+
 bool checkPose(frc::Pose2d pose)
 {
   return pose.X() >= 0.9_m && pose.X() <= 1.1_m && pose.Y() >= 0.9_m && pose.Y() <= 1.1_m;
