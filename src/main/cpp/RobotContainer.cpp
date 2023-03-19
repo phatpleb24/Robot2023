@@ -137,68 +137,8 @@ void RobotContainer::ConfigureButtonBindings() {
   m_joystick.B().WhileTrue(balanceCMD);
 }
 
-frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
 
-  printf("Kelvin1 %.03f\n", frc::Timer::GetFPGATimestamp().value());
-
-  frc::DifferentialDriveVoltageConstraint autoVoltageConstraint
-  {
-    frc::SimpleMotorFeedforward<units::meters>
-    {
-      testRobot::kS, testRobot::kV, testRobot::kA
-    },
-    frc::DifferentialDriveKinematics(testRobot::kTrackWidth), 2_V
-  };
-  
-  frc::TrajectoryConfig config(0.5_mps, 0.4_mps_sq);
-  config.SetKinematics(frc::DifferentialDriveKinematics(testRobot::kTrackWidth));
-  config.AddConstraint(autoVoltageConstraint);
-  frc::Pose2d initialPose = frc::Pose2d{0_m, 0_m, 0_deg};
-  frc::Pose2d finalPose;
-
-  
-  finalPose = frc::Pose2d{2_m,2_m,0_deg};
-
-  auto trajectory = frc::TrajectoryGenerator::GenerateTrajectory(
-    initialPose,
-    {/*frc::Translation2d{2_m,0_m}, frc::Translation2d{1_m,1_m}*/},
-    finalPose,
-    config
-  );
-  frc::Trajectory pathWeaverTraj;
-  fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
-  deployDirectory = deployDirectory / "output" / "middleStart.wpilib.json";
-  pathWeaverTraj = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory.string());
-
-  //m_drive.m_field.GetObject("traj")->SetTrajectory(trajectory);
-  
-  m_drive.resetOdometry(pathWeaverTraj.InitialPose());
-  frc2::RamseteCommand ramseteCommand
-  {
-    pathWeaverTraj,
-    [this]() {return m_drive.getPose();},
-    frc::RamseteController{},
-    frc::SimpleMotorFeedforward<units::meters>{testRobot::kS, testRobot::kV, testRobot::kA},
-    frc::DifferentialDriveKinematics(testRobot::kTrackWidth),
-    [this]() {return m_drive.getWheelSpeed();},
-    frc2::PIDController{.5, 0, 0},
-    frc2::PIDController{.5, 0, 0},
-    [this](auto left, auto right){m_drive.tankDriveVolts(left, right);},
-    {&m_drive},
-  };
-
-
-  printf("Kelvin2 %.03f\n", frc::Timer::GetFPGATimestamp().value());
-  PlacementSequence placeCMD = PlacementSequence(&m_arm);
-  double armPos = m_arm.getEncoderValue();
-  return 
-      std::move(ramseteCommand).ToPtr()/*.FinallyDo([this] (bool end){m_drive.tankDriveVolts(0_V,0_V);})*/
-      .AndThen(std::move(placeCMD).ToPtr());
-      //.AndThen([this] {m_drive.ArcadeDrive(0, .3);}, {&m_drive}).Until([this] {return m_drive.getPose().Rotation().Degrees().value() == 180.0;});
-      //lmoo 
-}
-
-frc2::CommandPtr RobotContainer::Autonomous2(std::string file) {
+frc2::CommandPtr RobotContainer::Autonomous(std::string file) {
   frc::Trajectory pathWeaverTraj;
   fs::path deployDirectory = frc::filesystem::GetDeployDirectory();
   deployDirectory = deployDirectory / "output" / file;

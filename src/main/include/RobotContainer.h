@@ -38,9 +38,7 @@ class RobotContainer {
   Drivetrain m_drive;
   ArmSubsystem m_arm;
 
-  frc2::CommandPtr GetAutonomousCommand();
-
-  frc2::CommandPtr Autonomous2(std::string file);
+  frc2::CommandPtr Autonomous(std::string file);
 
   frc2::Command* TankDriveCommand();
 

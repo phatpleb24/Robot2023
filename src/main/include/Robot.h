@@ -8,6 +8,7 @@
 #include <frc2/command/Command.h>
 #include <thread>
 #include <optional>
+#include <commands/PlacementSequence.h>
 
 #include "RobotContainer.h"
 
@@ -32,13 +33,15 @@ class Robot : public frc::TimedRobot {
   std::optional<frc2::CommandPtr> m_midCommand;
   std::optional<frc2::CommandPtr> m_pendingCommand;
 
-  frc::SendableChooser<std::string> chooser;
-  const std::string leftCMD = "Left";
-  const std::string midCharge = "Charge";
-  const std::string midNoCharge = "No Charge";
-  const std::string rightCMD = "Right";
+  frc2::Command* autoCommandPtr;
 
+  frc::SendableChooser<frc2::Command*> chooser;
   RobotContainer m_container;
+  frc2::CommandPtr leftCMD = m_container.Autonomous("lowOutRed.wpilib.json");
+  frc2::CommandPtr rightCMD = m_container.Autonomous("lowOut.wpilib.json");
+  frc2::CommandPtr midCMD = m_container.midChargeCMD();
+  frc2::CommandPtr place = PlacementSequence(&m_container.m_arm).ToPtr();
+
 
   std::unique_ptr<std::thread> commandCreator;
 

@@ -2,8 +2,6 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-#pragma once
-
 #include "Robot.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -12,7 +10,6 @@
 #include <frc/shuffleboard/Shuffleboard.h>
 #include <frc/DataLogManager.h>
 #include <units/length.h>
-#include <commands/PlacementSequence.h>
 
 void Robot::RobotInit()
 {
@@ -20,11 +17,11 @@ void Robot::RobotInit()
   
   frc::DataLogManager::Start();
 
-  chooser.SetDefaultOption(midCharge, midCharge);
-  chooser.AddOption(leftCMD, leftCMD);
-  chooser.AddOption(rightCMD, rightCMD);
-  chooser.AddOption(midCharge, midCharge);
-  chooser.AddOption(midNoCharge, midNoCharge);
+  
+  chooser.SetDefaultOption("Place Only", place.get());
+  chooser.AddOption("Left", leftCMD.get());
+  chooser.AddOption("Right", rightCMD.get());
+  chooser.AddOption("Mid", midCMD.get());
   frc::SmartDashboard::PutData("Auto Modes", &chooser);
 }
 
@@ -54,23 +51,9 @@ void Robot::DisabledPeriodic() {}
  * RobotContainer} class.
  */
 void Robot::AutonomousInit() {
-  std::string selected = chooser.GetSelected();
-  if(selected == midCharge)
-  {
-    m_autonomousCommand = m_container.midChargeCMD();
-  }
-  else if(selected == midNoCharge)
-  {
-    m_autonomousCommand = PlacementSequence(&(m_container.m_arm)).ToPtr();
-  }
-  else if(selected == leftCMD)
-  {
-    m_autonomousCommand = m_container.Autonomous2("lowOutRed.wpilib.json");
-  }
-  else
-  {
-    m_autonomousCommand = m_container.Autonomous2("lowOut.wpilib.json");
-  }
+  autoCommandPtr = chooser.GetSelected();
+  if(autoCommandPtr != nullptr)
+  autoCommandPtr->Schedule();
 }
 
 bool checkPose(frc::Pose2d pose)
@@ -85,7 +68,7 @@ void Robot::AutonomousPeriodic()
    // delete m_autonomousCommand;
     if(commandCreator == nullptr)
     {
-      m_autonomousCommand->Cancel();
+      autoCommandPtr->Cancel();
       m_container.m_drive.tankDriveVolts(0_V,0_V);
       commandCreator = std::make_unique<std::thread>([this] () {m_pendingCommand = m_container.AprilTagTrajectory();});      
     }
@@ -111,6 +94,8 @@ void Robot::TeleopInit() {
   if (m_autonomousCommand) {
     m_autonomousCommand->Cancel();
   }
+  if(autoCommandPtr != nullptr)
+    autoCommandPtr->Cancel();
 }
 
 /**
