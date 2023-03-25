@@ -2,6 +2,7 @@
 
 #include <frc2/command/SubsystemBase.h>
 #include <rev/CANSparkMax.h>
+#include <ctre/Phoenix.h>
 #include <frc2/command/ProfiledPIDSubsystem.h>
 #include <frc/DigitalInput.h>
 
@@ -16,6 +17,8 @@ class ArmSubsystem : public frc2::SubsystemBase
 
     int intakeState = 0;
 
+    int armBack = 0;
+
     void moveIntake(units::volt_t volts);
 
     void Periodic() override;
@@ -27,7 +30,7 @@ class ArmSubsystem : public frc2::SubsystemBase
 
     private:
     rev::CANSparkMax m_armMotor{1, rev::CANSparkMax::MotorType::kBrushless};
-    rev::CANSparkMax m_intakeMotor{2, rev::CANSparkMax::MotorType::kBrushed};
+    WPI_TalonFX m_intakeMotor{2};
     rev::SparkMaxRelativeEncoder m_encoder{m_armMotor.GetEncoder()};
     frc::DigitalInput limitSwitch{0};
 };

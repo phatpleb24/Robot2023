@@ -28,9 +28,9 @@ void ArmSubsystem::moveIntake(units::volt_t volts)
 void ArmSubsystem::Periodic()
 {
     frc::SmartDashboard::PutNumber("Arm motor voltage", m_armMotor.GetAppliedOutput() * m_armMotor.GetBusVoltage());
-    frc::SmartDashboard::PutNumber("Intake motor voltage", m_intakeMotor.GetAppliedOutput() * m_intakeMotor.GetBusVoltage());
+    frc::SmartDashboard::PutNumber("Intake motor voltage", m_intakeMotor.GetMotorOutputVoltage() * m_intakeMotor.GetBusVoltage());
     frc::SmartDashboard::PutNumber("Arm motor temp", m_armMotor.GetMotorTemperature());
-    frc::SmartDashboard::PutNumber("Intake motor temp", m_intakeMotor.GetMotorTemperature());
+    frc::SmartDashboard::PutNumber("Intake motor temp", m_intakeMotor.GetTemperature());
     frc::SmartDashboard::PutNumber("Intake State", intakeState);
     frc::SmartDashboard::PutNumber("Limit Switch", limitSwitch.Get());
     frc::SmartDashboard::PutNumber("Intake Current", m_intakeMotor.GetOutputCurrent());
