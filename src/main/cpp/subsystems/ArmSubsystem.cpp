@@ -17,7 +17,10 @@ void ArmSubsystem::moveArm(units::volt_t volts)
 {
     //if(limitSwitch.Get()) m_armMotor.SetVoltage(0_V);
     //else
-     m_armMotor.SetVoltage(volts);
+    if(m_encoder.GetVelocity() == 0 && m_armMotor.GetOutputCurrent() > 10)
+        m_armMotor.SetVoltage(0.5_V);
+    else 
+        m_armMotor.SetVoltage(volts);
 }
 
 void ArmSubsystem::moveIntake(units::volt_t volts)
