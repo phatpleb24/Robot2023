@@ -17,7 +17,7 @@ void PlacementSequence::Initialize()
 
 void PlacementSequence::Execute()
 {
-    units::volt_t armVolt = 5_V;
+    units::volt_t armVolt = 3_V;
     units::volt_t intakeVolt = 0_V;
         if(startTime == -1)
         {
@@ -25,8 +25,9 @@ void PlacementSequence::Execute()
         }
         if(frc::Timer::GetFPGATimestamp().value() - startTime >= 2.5)
         {
+            m_arm->armStall = false;
             intakeVolt = -9_V;
-            armVolt = -5_V;
+            armVolt = -3_V;
         }
         else 
             intakeVolt = 0_V;  

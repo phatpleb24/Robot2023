@@ -11,14 +11,15 @@ void ArmSubsystem::Init()
     m_armMotor.SetInverted(true);
     //m_intakeMotor.SetSmartCurrentLimit(20, 20);
     m_armMotor.SetSmartCurrentLimit(60);
+    frc::SmartDashboard::PutNumber("Hold Volts", armHoldVolts);
 }
 
 void ArmSubsystem::moveArm(units::volt_t volts)
 {
     //if(limitSwitch.Get()) m_armMotor.SetVoltage(0_V);
     //else
-    if(m_encoder.GetVelocity() == 0 && m_armMotor.GetOutputCurrent() > 10)
-        m_armMotor.SetVoltage(0.5_V);
+    if(armStall)
+        m_armMotor.SetVoltage(units::volt_t{-armHoldVolts});
     else 
         m_armMotor.SetVoltage(volts);
 }
@@ -30,6 +31,8 @@ void ArmSubsystem::moveIntake(units::volt_t volts)
 
 void ArmSubsystem::Periodic()
 {
+    if(m_encoder.GetVelocity() < 0.01 && m_encoder.GetVelocity() > -0.01 && m_armMotor.GetOutputCurrent() > 10)
+        armStall = 1;
     frc::SmartDashboard::PutNumber("Arm motor voltage", m_armMotor.GetAppliedOutput() * m_armMotor.GetBusVoltage());
     frc::SmartDashboard::PutNumber("Intake motor voltage", m_intakeMotor.GetMotorOutputVoltage() * m_intakeMotor.GetBusVoltage());
     frc::SmartDashboard::PutNumber("Arm motor temp", m_armMotor.GetMotorTemperature());
@@ -39,6 +42,9 @@ void ArmSubsystem::Periodic()
     frc::SmartDashboard::PutNumber("Intake Current", m_intakeMotor.GetOutputCurrent());
     frc::SmartDashboard::PutNumber("Arm Current", m_armMotor.GetOutputCurrent());
     frc::SmartDashboard::PutNumber("Arm Encoder", m_encoder.GetPosition());
+    armHoldVolts = frc::SmartDashboard::GetNumber("Hold Volts", armHoldVolts);
+    frc::SmartDashboard::PutNumber("Arm velocity", m_encoder.GetVelocity());
+    frc::SmartDashboard::PutBoolean("Arm Stall", armStall);
 }
 
 double ArmSubsystem::getEncoderValue()

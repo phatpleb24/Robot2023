@@ -27,11 +27,14 @@ class ArmSubsystem : public frc2::SubsystemBase
 
     bool getLimitSwitch();
 
-
+    bool armStall = 0;
+    
     private:
     rev::CANSparkMax m_armMotor{1, rev::CANSparkMax::MotorType::kBrushless};
     WPI_TalonFX m_intakeMotor{2};
     rev::SparkMaxRelativeEncoder m_encoder{m_armMotor.GetEncoder()};
     frc::DigitalInput limitSwitch{0};
+
+    double armHoldVolts = 0.5;
 };
 

@@ -92,11 +92,13 @@ void RobotContainer::ConfigureButtonBindings() {
     [this]
     {
       double x = -m_joystick2.GetRawAxis(5);
+      if(x > 0.1) m_arm.armStall = false;
       if (std::abs(x)>0.1){
         m_arm.armBack = 0;
       }
       m_arm.moveArm(1.5_V * x);
       if (m_joystick2.GetBButtonPressed()){
+        m_arm.armStall = false;
         m_arm.armBack = 1;
       }
       if (m_arm.armBack == 1){
