@@ -40,7 +40,7 @@ void PlacementSequence::Execute()
 
 bool PlacementSequence::IsFinished()
 {
-    return m_arm->getEncoderValue() <= position - 0.1;
+    return m_arm->getEncoderValue() >= position + 0.1;
 }
 
 void PlacementSequence::End(bool interrupted)

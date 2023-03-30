@@ -91,18 +91,18 @@ void RobotContainer::ConfigureButtonBindings() {
   {
     [this]
     {
-      double x = -m_joystick2.GetRawAxis(5);
+      double x = m_joystick2.GetRawAxis(5);
       if(x > 0.1) m_arm.armStall = false;
       if (std::abs(x)>0.1){
         m_arm.armBack = 0;
       }
-      m_arm.moveArm(1.5_V * x);
+      m_arm.moveArm(3_V * x);
       if (m_joystick2.GetBButtonPressed()){
         m_arm.armStall = false;
         m_arm.armBack = 1;
       }
       if (m_arm.armBack == 1){
-        m_arm.moveArm(-0.5_V);
+        m_arm.moveArm(0.5_V);
       }
       if(m_joystick2.GetLeftBumperPressed())
       {
@@ -162,8 +162,8 @@ frc2::CommandPtr RobotContainer::Autonomous(std::string file) {
     pathWeaverTraj,
     [this]() {return m_drive.getPose();},
     frc::RamseteController{},
-    frc::SimpleMotorFeedforward<units::meters>{testRobot::kS, testRobot::kV, testRobot::kA},
-    frc::DifferentialDriveKinematics(testRobot::kTrackWidth),
+    frc::SimpleMotorFeedforward<units::meters>{DriveConstants::kS, DriveConstants::kV, DriveConstants::kA},
+    frc::DifferentialDriveKinematics(DriveConstants::kTrackWidth),
     [this]() {return m_drive.getWheelSpeed();},
     frc2::PIDController{.5, 0, 0},
     frc2::PIDController{.5, 0, 0},
@@ -181,13 +181,13 @@ frc2::CommandPtr RobotContainer::AprilTagTrajectory() {
   {
     frc::SimpleMotorFeedforward<units::meters>
     {
-      testRobot::kS, testRobot::kV, testRobot::kA
+      DriveConstants::kS, DriveConstants::kV, DriveConstants::kA
     },
-    frc::DifferentialDriveKinematics(testRobot::kTrackWidth), 2_V
+    frc::DifferentialDriveKinematics(DriveConstants::kTrackWidth), 2_V
   };
   
   frc::TrajectoryConfig config(0.5_mps, 0.4_mps_sq);
-  config.SetKinematics(frc::DifferentialDriveKinematics(testRobot::kTrackWidth));
+  config.SetKinematics(frc::DifferentialDriveKinematics(DriveConstants::kTrackWidth));
   config.AddConstraint(autoVoltageConstraint);
   frc::Pose2d initialPose = m_drive.getPose();
   frc::Pose2d finalPose;
@@ -223,8 +223,8 @@ frc2::CommandPtr RobotContainer::AprilTagTrajectory() {
     trajectory,
     [this]() {return m_drive.getPose();},
     frc::RamseteController{},
-    frc::SimpleMotorFeedforward<units::meters>{testRobot::kS, testRobot::kV, testRobot::kA},
-    frc::DifferentialDriveKinematics(testRobot::kTrackWidth),
+    frc::SimpleMotorFeedforward<units::meters>{DriveConstants::kS, DriveConstants::kV, DriveConstants::kA},
+    frc::DifferentialDriveKinematics(DriveConstants::kTrackWidth),
     [this]() {return m_drive.getWheelSpeed();},
     frc2::PIDController{.5, 0, 0},
     frc2::PIDController{.5, 0, 0},
@@ -252,11 +252,11 @@ frc2::CommandPtr RobotContainer::midChargeCMD()
     pathWeaverTraj,
     [this]() {return m_drive.getPose();},
     frc::RamseteController{},
-    frc::SimpleMotorFeedforward<units::meters>{testRobot::kS, testRobot::kV, testRobot::kA},
-    frc::DifferentialDriveKinematics(testRobot::kTrackWidth),
+    frc::SimpleMotorFeedforward<units::meters>{DriveConstants::kS, DriveConstants::kV, DriveConstants::kA},
+    frc::DifferentialDriveKinematics(DriveConstants::kTrackWidth),
     [this]() {return m_drive.getWheelSpeed();},
-    frc2::PIDController{.5, 0, 0},
-    frc2::PIDController{.5, 0, 0},
+    frc2::PIDController{0.5, 0, 0},
+    frc2::PIDController{0.5, 0, 0},
     [this](auto left, auto right){m_drive.tankDriveVolts(left, right);},
     {&m_drive},
   };

@@ -10,7 +10,7 @@ void Balance::Initialize()
 {
     printf("Balance Init\n");
     maxPitch = 15;
-    maxSpeed = 1.8;
+    maxSpeed = 1.7;
     pitchTolerance = 0.5;
     balanceDuration = 2;
     timerStarted = false;
