@@ -35,6 +35,8 @@ class ArmSubsystem : public frc2::SubsystemBase
     rev::SparkMaxRelativeEncoder m_encoder{m_armMotor.GetEncoder()};
     frc::DigitalInput limitSwitch{0};
 
+    int stallCNT = 0;
+
     double armHoldVolts = 0.5;
 };
 

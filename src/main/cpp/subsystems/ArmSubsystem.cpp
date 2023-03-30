@@ -31,8 +31,11 @@ void ArmSubsystem::moveIntake(units::volt_t volts)
 
 void ArmSubsystem::Periodic()
 {
-    if(m_encoder.GetVelocity() < 0.01 && m_encoder.GetVelocity() > -0.01 && m_armMotor.GetOutputCurrent() > 10)
-        armStall = 1;
+    /*if(m_encoder.GetVelocity() <= 0 && m_encoder.GetVelocity() > -0.01 && m_armMotor.GetOutputCurrent() > 10)
+        stallCNT++;
+    else stallCNT = 0;
+    if(stallCNT == 3) armStall = true;
+    else armStall = false;*/
     frc::SmartDashboard::PutNumber("Arm motor voltage", m_armMotor.GetAppliedOutput() * m_armMotor.GetBusVoltage());
     frc::SmartDashboard::PutNumber("Intake motor voltage", m_intakeMotor.GetMotorOutputVoltage() * m_intakeMotor.GetBusVoltage());
     frc::SmartDashboard::PutNumber("Arm motor temp", m_armMotor.GetMotorTemperature());

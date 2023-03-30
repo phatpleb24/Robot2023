@@ -10,7 +10,7 @@ void Balance::Initialize()
 {
     printf("Balance Init\n");
     maxPitch = 15;
-    maxSpeed = 1.7;
+    maxSpeed = 1.8;
     pitchTolerance = 0.5;
     balanceDuration = 2;
     timerStarted = false;
@@ -32,12 +32,12 @@ void Balance::Execute()
     double localTimestamp = frc::Timer::GetFPGATimestamp().value();
     if(localTimestamp - debugTimestamp > 1)
     {
-        printf("Execute %0.3f\n", localTimestamp);
+        //printf("Execute %0.3f\n", localTimestamp);
         debugTimestamp = localTimestamp;
     }
     double roll = -m_drive->getRoll();
     double voltage = std::max(-maxSpeed, std::min(maxSpeed, maxSpeed * (roll - levelAngle) / maxPitch));
-    printf("Volts %.03f Roll %0.3f\n", voltage, roll);
+    //printf("Volts %.03f Roll %0.3f\n", voltage, roll);
     m_drive->tankDriveVolts(units::volt_t{voltage}, units::volt_t{voltage});
 }
 bool Balance::IsFinished()
