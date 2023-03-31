@@ -29,16 +29,15 @@ namespace DriveConstants
     constexpr units::meter_t kTrackWidth = 0.48251_m;
     constexpr auto kVAngular = 2.1592 * 1_V/1_mps;
     constexpr auto kAAngular = 0.53732 * 1_V / 1_mps_sq;
-    constexpr auto kRightDirection = TalonFXInvertType::Clockwise;
-    constexpr auto kLeftDirection = TalonFXInvertType::CounterClockwise;
+    constexpr auto kRightDirection = TalonFXInvertType::CounterClockwise;
+    constexpr auto kLeftDirection = TalonFXInvertType::Clockwise;
     /*constexpr units::volt_t kS = 0.14643_V;
     constexpr auto kV = 1.8676 * 1_V / 1_mps;
     constexpr auto kA = 0.46219 * 1_V / 1_mps_sq;
     constexpr units::meter_t kTrackWidth = 0.44618_m;
     constexpr auto kVAngular = 2.0807 * 1_V/1_mps;
     constexpr auto kAAngular = 0.39601 * 1_V / 1_mps_sq;*/
-    constexpr auto kRightDirection = TalonFXInvertType::Clockwise;
-    constexpr auto kLeftDirection = TalonFXInvertType::CounterClockwise;
+
 }
 
 namespace testRobot

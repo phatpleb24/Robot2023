@@ -36,6 +36,7 @@ class Robot : public frc::TimedRobot {
   frc2::Command* autoCommandPtr;
 
   frc::SendableChooser<frc2::Command*> chooser;
+  frc::SendableChooser<std::string> chooser2;
   RobotContainer m_container;
   frc2::CommandPtr leftCMD = m_container.Autonomous("lowOutRed.wpilib.json");
   frc2::CommandPtr rightCMD = m_container.Autonomous("lowOut.wpilib.json");

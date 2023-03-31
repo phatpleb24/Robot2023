@@ -22,7 +22,12 @@ void Robot::RobotInit()
   chooser.AddOption("Left", leftCMD.get());
   chooser.AddOption("Right", rightCMD.get());
   chooser.AddOption("Mid", midCMD.get());
-  frc::SmartDashboard::PutData("Auto Modes", &chooser);
+  chooser2.SetDefaultOption("Place", "Place");
+  chooser2.AddOption("Left", "Left");
+  chooser2.AddOption("Mid", "Mid");
+  chooser2.AddOption("Right", "Right");
+  //frc::SmartDashboard::PutData("Auto Modes", &chooser);
+  frc::SmartDashboard::PutData("Auto Moodes", &chooser2);
 }
 
 /**
@@ -51,9 +56,23 @@ void Robot::DisabledPeriodic() {}
  * RobotContainer} class.
  */
 void Robot::AutonomousInit() {
-  autoCommandPtr = chooser.GetSelected();
-  if(autoCommandPtr != nullptr)
-  autoCommandPtr->Schedule();
+  //autoCommandPtr = chooser.GetSelected();
+  if(chooser2.GetSelected() == "Left")
+  {
+    m_autonomousCommand = m_container.Autonomous("lowOutRed.wpilib.json");
+  }
+  else if(chooser2.GetSelected() == "Mid")
+  {
+    m_autonomousCommand = m_container.midChargeCMD();
+  }
+  else if(chooser2.GetSelected() == "Right")
+  {
+    m_autonomousCommand = m_container.Autonomous("lowOut.wpilib.json");
+  }
+  else m_autonomousCommand = PlacementSequence(&(m_container.m_arm)).ToPtr();
+  /*if(autoCommandPtr != nullptr)
+  autoCommandPtr->Schedule();*/
+  m_autonomousCommand->Schedule();
 }
 
 bool checkPose(frc::Pose2d pose)

@@ -171,7 +171,7 @@ frc2::CommandPtr RobotContainer::Autonomous(std::string file) {
     {&m_drive},
   };
   PlacementSequence placeCMD = PlacementSequence(&m_arm);
-  return std::move(placeCMD).ToPtr();//.AndThen(std::move(ramseteCommand).ToPtr()).AndThen([this] {m_drive.tankDriveVolts(0_V,0_V);}, {&m_drive});
+  return std::move(ramseteCommand).ToPtr();//.AndThen(std::move(ramseteCommand).ToPtr()).AndThen([this] {m_drive.tankDriveVolts(0_V,0_V);}, {&m_drive});
 }
 
 frc2::CommandPtr RobotContainer::AprilTagTrajectory() {
@@ -262,5 +262,6 @@ frc2::CommandPtr RobotContainer::midChargeCMD()
   };
   Balance balanceCMD = Balance(&m_drive);
   PlacementSequence placeCMD = PlacementSequence(&m_arm);
-  return std::move(placeCMD).ToPtr().AndThen(std::move(ramseteCommand).ToPtr()).AndThen(std::move(balanceCMD).ToPtr());
+  //return std::move(placeCMD).ToPtr().AndThen(std::move(ramseteCommand).ToPtr()).AndThen(std::move(balanceCMD).ToPtr());
+  return std::move(ramseteCommand).ToPtr();
 }
